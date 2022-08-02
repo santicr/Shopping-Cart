@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, render_template
+import controller
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return '<p>Hello, this is a new app using Flask</p>'
+    return render_template('index.html')
 
 app.run(debug = True)
