@@ -33,14 +33,14 @@ def readItem():
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
     query1 = "SELECT * FROM item"
-    conn.commit()
-    conn.close()
+    rows = cursor.execute(query1)
+    print(rows)
+    return rows
 
 def main():
     #createTable()
-    #insertItem([0, "Acer Nitro 5", 20, 3000000, 0, "Características principales:\
-    #16 GB RAM, 512GB SSD, Ryzen 5 4600h, FHD, GTX 1650."])
     #deleteTable()
+    readItem()
     pass
 
 main()
