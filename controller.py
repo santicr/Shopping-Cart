@@ -9,8 +9,7 @@ def createDB():
 def createTable():
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
-    query1 = 'CREATE TABLE Item (Id INT PRIMARY KEY, Name VARCHAR, Quantity INT, Price REAL, Sold INT\
-        , Description TEXT)'
+    query1 = 'CREATE TABLE User (Name VARCHAR PRIMARY KEY, Password VARCHAR)'
     cursor.execute(query1)
     conn.commit()
     conn.close()
@@ -37,10 +36,27 @@ def readItem():
     print(rows)
     return rows
 
+def readUser(user):
+    ans = False
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"SELECT Name FROM User WHERE Name = '{user}'"
+    rows = cursor.execute(query1)
+    if len(list(rows)) == 0:
+        ans = True
+    conn.close()
+    return ans
+
+def insertUser(user, passw):
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"INSERT INTO User VALUES('{user}', '{passw}')"
+    cursor.execute(query1)
+    conn.commit()
+    conn.close()
+
 def main():
-    #createTable()
-    #deleteTable()
-    readItem()
+    #readUser('santi')
     pass
 
 main()
