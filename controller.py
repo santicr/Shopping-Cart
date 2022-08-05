@@ -1,10 +1,4 @@
 import sqlite3
-from venv import create
-
-def createDB():
-    conn = sqlite3.connect('items.db')
-    conn.commit()
-    conn.close()
 
 def createTable():
     conn = sqlite3.connect('items.db')
@@ -54,6 +48,17 @@ def insertUser(user, passw):
     cursor.execute(query1)
     conn.commit()
     conn.close()
+
+def existUser(user, passw):
+    ans = False
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"SELECT * FROM User WHERE Name = '{user}' AND Password = '{passw}'"
+    rows = cursor.execute(query1)
+    if len(list(rows)) == 1:
+        ans = True
+    conn.close()
+    return ans
 
 def main():
     #readUser('santi')

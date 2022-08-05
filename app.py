@@ -1,20 +1,35 @@
 from flask import Flask, render_template, request, redirect, session, url_for
-from controller import readItem, insertItem, readUser, insertUser
+from controller import readItem, insertItem, readUser, insertUser, existUser
 
 app = Flask(__name__)
+app.secret_key = "SECRET"
 
 @app.route('/')
 def index():
     rows = readItem()
     return render_template('index.html', data = rows)
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
 @app.route('/error')
 def error():
     return render_template('error.html')
+
+@app.route('/user')
+def user():
+    if "user" in session:
+        user = session['user']
+        return f'<p>Hello, {user}</p>'
+    return redirect(url_for('index'))
+
+@app.route('/login', methods = ['POST', 'GET'])
+def login():
+    if request.method == "POST":
+        user = request.form['user']
+        passw = request.form['passw']
+        if existUser(user, passw):
+            session["user"] = user
+            return redirect(url_for('user'))
+        return redirect(url_for('error'))
+    return render_template('login.html')
 
 @app.route('/register', methods = ['POST', 'GET'])
 def register():
@@ -28,4 +43,5 @@ def register():
         return redirect(url_for('error'))
     return render_template('register.html')
 
-app.run(debug = True)
+if __name__ == "__main__":
+    app.run(debug = True)
