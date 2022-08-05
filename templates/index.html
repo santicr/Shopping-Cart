@@ -15,12 +15,17 @@
                         </a>
                     </li>
                 </ul>
-                <form action="{{ (url_for('login')) }}">
-                    <button type="submit" class="btn btn-success">Iniciar Sesión</button>
-                </form>
-                <form action="{{ (url_for('register')) }}">
-                    <button type="submit" class="btn btn-danger">Registrarse</button>
-                </form>
+                {% if not flag %}
+                    <form action="{{ (url_for('login')) }}">
+                        <button type="submit" class="btn btn-success">Iniciar Sesión</button>
+                    </form>
+                    <form action="{{ (url_for('register')) }}">
+                        <button type="submit" class="btn btn-danger">Registrarse</button>
+                    </form>
+                {% elif flag %}
+                    <span class="navbar-text">Bienvenido {{ user }} {{ amount }}</span>
+                    <input type="image" src="/static/cart.png" style="width: 2.5rem;"/>
+                {% endif %}
             </div>
         </nav>
         <div class="container">

@@ -3,14 +3,14 @@ import sqlite3
 def createTable():
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
-    query1 = 'CREATE TABLE User (Name VARCHAR PRIMARY KEY, Password VARCHAR)'
+    query1 = 'CREATE TABLE itemUser (itemID, userName)'
     cursor.execute(query1)
     conn.commit()
     conn.close()
 
 def deleteTable():
     conn = sqlite3.connect('items.db')
-    conn.execute("DROP TABLE Item")
+    conn.execute("DROP TABLE User")
     conn.commit()
     conn.close()
 
@@ -44,7 +44,7 @@ def readUser(user):
 def insertUser(user, passw):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
-    query1 = f"INSERT INTO User VALUES('{user}', '{passw}')"
+    query1 = f"INSERT INTO User VALUES('{user}', '{passw}', 1)"
     cursor.execute(query1)
     conn.commit()
     conn.close()
@@ -61,7 +61,7 @@ def existUser(user, passw):
     return ans
 
 def main():
-    #readUser('santi')
+    #createTable()
     pass
 
 main()

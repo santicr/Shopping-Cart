@@ -7,18 +7,16 @@ app.secret_key = "SECRET"
 @app.route('/')
 def index():
     rows = readItem()
-    return render_template('index.html', data = rows)
+    flag = False
+    user = ""
+    if "user" in session:
+        user = session["user"]
+        flag = True
+    return render_template('index.html', data = rows, user = user, flag = flag)
 
 @app.route('/error')
 def error():
     return render_template('error.html')
-
-@app.route('/user')
-def user():
-    if "user" in session:
-        user = session['user']
-        return f'<p>Hello, {user}</p>'
-    return redirect(url_for('index'))
 
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
@@ -27,7 +25,6 @@ def login():
         passw = request.form['passw']
         if existUser(user, passw):
             session["user"] = user
-            return redirect(url_for('user'))
         return redirect(url_for('error'))
     return render_template('login.html')
 
