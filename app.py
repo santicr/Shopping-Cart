@@ -1,18 +1,42 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from controller import readItem, insertItem, readUser, insertUser, existUser
+from werkzeug.utils import secure_filename
+import os
+
+UPLOAD_FOLDER = 'static'
 
 app = Flask(__name__)
 app.secret_key = "SECRET"
+app.config['UPLOAD FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/')
 def index():
     rows = readItem()
-    flag = False
-    user = ""
+    flag = 0
+    user, admin = "", ""
     if "user" in session:
         user = session["user"]
-        flag = True
-    return render_template('index.html', data = rows, user = user, flag = flag)
+        flag = 1
+    elif "admin" in session:
+        admin = session["admin"]
+        flag = 2
+    return render_template('index.html', data = rows, user = user, flag = flag, admin = admin)
+
+@app.route('/admin', methods = ['POST', 'GET'])
+def admin():
+    if request.method == 'POST':
+        name = request.form['name']
+        quant = request.form['quant']
+        price = request.form['price']
+        desc = request.form['desc']
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        data = [name, quant, price, 0, desc, 'static/' + file.filename]
+        file.save(os.path.join(app.config['UPLOAD FOLDER'], filename))
+        insertItem(data)
+    if "admin" in session:
+        return render_template('admin.html')
+    return redirect(url_for('index'))
 
 @app.route('/error')
 def error():
@@ -23,8 +47,13 @@ def login():
     if request.method == "POST":
         user = request.form['user']
         passw = request.form['passw']
-        if existUser(user, passw):
-            session["user"] = user
+        ans = existUser(user, passw)
+        if ans:
+            if ans == 1:
+                session["user"] = user
+            else:
+                session["admin"] = user
+            return redirect(url_for('index'))
         return redirect(url_for('error'))
     return render_template('login.html')
 

@@ -15,16 +15,21 @@
                         </a>
                     </li>
                 </ul>
-                {% if not flag %}
+                {% if flag == 0 %}
                     <form action="{{ (url_for('login')) }}">
                         <button type="submit" class="btn btn-success">Iniciar Sesión</button>
                     </form>
                     <form action="{{ (url_for('register')) }}">
                         <button type="submit" class="btn btn-danger">Registrarse</button>
                     </form>
-                {% elif flag %}
+                {% elif flag == 1 %}
                     <span class="navbar-text">Bienvenido {{ user }} {{ amount }}</span>
                     <input type="image" src="/static/cart.png" style="width: 2.5rem;"/>
+                {% elif flag == 2 %}
+                    <span class="navbar-text">Bienvenido {{ admin }} {{ amount }}</span>
+                    <form action="{{ (url_for('admin')) }}">
+                        <button type="submit" class="btn btn-danger">Agregar producto</button>
+                    </form>
                 {% endif %}
             </div>
         </nav>
@@ -32,7 +37,7 @@
             <div class="row">
                 {% for row in data %}
                     <div class="card" style="width: 18rem;">
-                        <img src="/static/acerNitro5.jpg" class="card-img-top" alt="Acer Nitro 5">
+                        <img src="{{ row[6] }}" class="card-img-top" alt="Acer Nitro 5">
                         <div class="card-body">
                             <h5 class="card-title">{{ row[1] }}</h5>
                             <p class="card-text">
