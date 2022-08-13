@@ -23,10 +23,12 @@
                         <button type="submit" class="btn btn-danger">Registrarse</button>
                     </form>
                 {% elif flag == 1 %}
-                    <span class="navbar-text">Bienvenido {{ user }} {{ amount }}</span>
-                    <input type="image" src="/static/cart.png" style="width: 2.5rem;"/>
+                    <span class="navbar-text">Bienvenido {{ user }} {% if amount > 0 %} {{ amount }} {% endif %}</span>
+                    <a href="{{ url_for('cart') }}">
+                        <img src="/static/cart.png" style="width: 2.5rem;">
+                    </a>
                 {% elif flag == 2 %}
-                    <span class="navbar-text">Bienvenido {{ admin }} {{ amount }}</span>
+                    <span class="navbar-text">Bienvenido {{ admin }}</span>
                     <form action="{{ (url_for('admin')) }}">
                         <button type="submit" class="btn btn-danger">Agregar producto</button>
                     </form>
@@ -34,20 +36,33 @@
             </div>
         </nav>
         <div class="container">
-            <div class="row">
-                {% for row in data %}
-                    <div class="card" style="width: 18rem;">
-                        <img src="{{ row[6] }}" class="card-img-top" alt="Acer Nitro 5">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ row[1] }}</h5>
-                            <p class="card-text">
-                                {{ row[5] }}
-                            </p>
-                            <a href="#" class="btn btn-primary">Add to cart</a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+			<div class="row">
+		        {% for row in data %}
+		            <div class="card" style="width: 18rem;">
+		                <img src="{{ row[6] }}" class="card-img-top" alt="{{ row[1] }}">
+		                <div class="card-body">
+		                    <h5 class="card-title">{{ row[1] }}</h5>
+		                    <p class="card-text">
+		                        {{ row[5] }}
+		                    </p>
+		                    {% if user %}
+		                    <form action="{{ url_for('add_cart', itemId = row[0], user = user) }}">
+		                        <button type="submit" class="btn btn-primary">Añadir al carrito</button>
+		                    </form>
+		                    {% else %}
+		                        <i class="fa fa-italic" aria-hidden="true"></i>
+		                        <p>
+		                            <b>
+		                                <i class="fa fa-italic" aria-hidden="true">
+		                                    Si deseas comprar este producto, por favor registrate e inicia sesión.
+		                                </i>
+		                            </b>
+		                        </p>
+		                    {% endif %}
+		                </div>
+		            </div>
+		        {% endfor %}
+		    </div>
+		</div>
     </body>
 </html>

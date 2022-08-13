@@ -4,7 +4,12 @@ def createTable():
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
     query1 = 'CREATE TABLE Item(Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Quantity INT, Price REAL, Sold INT, Description TEXT, URL TEXT)'
-    cursor.execute(query1)
+    query2 = """
+    CREATE TABLE Cart(
+        User TEXT, ItemId INTEGER, FOREIGN KEY(User) REFERENCES User(Name), FOREIGN KEY(ItemId) REFERENCES Item(Id)
+    )
+    """
+    cursor.execute(query2)
     conn.commit()
     conn.close()
 
@@ -41,10 +46,27 @@ def readUser(user):
     conn.close()
     return ans
 
+def readCart(user):
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"SELECT * FROM Cart WHERE User = '{user}'"
+    rows = cursor.execute(query1)
+    lrows = len(list(rows))
+    conn.close()
+    return lrows
+
 def insertUser(user, passw):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
     query1 = f"INSERT INTO User VALUES('{user}', '{passw}', 0)"
+    cursor.execute(query1)
+    conn.commit()
+    conn.close()
+
+def insertCart(userId, itemId):
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"INSERT INTO Cart VALUES('{userId}', {itemId})"
     cursor.execute(query1)
     conn.commit()
     conn.close()
@@ -65,10 +87,28 @@ def existUser(user, passw):
     conn.close()
     return ans
 
+def readCartItems(user):
+    conn = sqlite3.connect("items.db")
+    cursor = conn.cursor()
+    query1 = f"SELECT ItemId FROM Cart WHERE User = '{user}'"
+    rows = cursor.execute(query1)
+    rows = list(rows)
+    conn.close()
+    return rows
+
+def readItemById(idIt):
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"SELECT * FROM Item where id = {idIt}"
+    row = list(cursor.execute(query1))
+    conn.close()
+    return row
+
 def main():
     #deleteTable()
     #createTable()
     #existUser('santicr', '1')
+    #readCart("santicr21")
     pass
 
 main()
