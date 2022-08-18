@@ -90,7 +90,7 @@ def existUser(user, passw):
 def readCartItems(user):
     conn = sqlite3.connect("items.db")
     cursor = conn.cursor()
-    query1 = f"SELECT ItemId FROM Cart WHERE User = '{user}'"
+    query1 = f"SELECT Name, Count(*), Count(*) * Price, ItemId, User FROM Cart INNER JOIN Item ON Id = ItemId WHERE User = '{user}' GROUP BY ItemId"
     rows = cursor.execute(query1)
     rows = list(rows)
     conn.close()
@@ -101,6 +101,21 @@ def readItemById(idIt):
     cursor = conn.cursor()
     query1 = f"SELECT * FROM Item where id = {idIt}"
     row = list(cursor.execute(query1))
+    conn.close()
+    return row
+
+def deleteCart(idIt, user):
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"""
+            DELETE FROM Cart
+            WHERE ItemId IN (
+                SELECT ItemId FROM
+                Cart WHERE ItemId = {idIt} AND User = '{user}' LIMIT 1
+                )
+            """
+    row = list(cursor.execute(query1))
+    conn.commit()
     conn.close()
     return row
 

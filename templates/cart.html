@@ -3,11 +3,57 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 		<title>Carrrito de compras</title>
 	</head>
 	<body>
-		{% for row in rows %}
-			<p>{{ row[0] }}</p>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+		<nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">
+                            Menú principal
+                        </a>
+                    </li>
+                </ul>
+                {% if flag == 0 %}
+                    <form action="{{ (url_for('login')) }}">
+                        <button type="submit" class="btn btn-success">Iniciar Sesión</button>
+                    </form>
+                    <form action="{{ (url_for('register')) }}">
+                        <button type="submit" class="btn btn-danger">Registrarse</button>
+                    </form>
+                {% elif flag == 1 %}
+                    <span class="navbar-text">Bienvenido {{ user }} {% if amount > 0 %} {{ amount }} {% endif %}</span>
+                    <a href="{{ url_for('cart') }}">
+                        <img src="/static/cart.png" style="width: 2.5rem;">
+                    </a>
+                    <form action="{{ (url_for('logout')) }}">
+                        <button type="submit" class="btn btn-danger">Cerrar Sesión</button>
+                    </form>
+                {% elif flag == 2 %}
+                    <span class="navbar-text">Bienvenido {{ admin }}</span>
+                    <form action="{{ (url_for('admin')) }}">
+                        <button type="submit" class="btn btn-light">Agregar producto</button>
+                    </form>
+                    <form action="{{ (url_for('logout')) }}">
+                        <button type="submit" class="btn btn-danger">Cerrar Sesión</button>
+                    </form>
+                {% endif %}
+            </div>
+        </nav>
+		<h2>Bienvenido a tu carrito de compras {{ user }}!</h2>
+		{% for row in lst %}
+		<form action="{{ url_for('remove_item', idIt = row['idIt']) }}">
+			<h4>
+				{{ row['item'] }} {{ row['cant'] }} {{ row['total'] }}
+					<button type="submit" class="btn btn-warning">Remover uno</button>
+				
+			</h4>
+		</form>
 		{% endfor %}
+		<h4>Total a pagar: {{ total }}</h4>
+		<button type="button" class="btn btn-danger">Pagar</button>
 	</body>
 </html>

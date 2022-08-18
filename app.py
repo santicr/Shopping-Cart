@@ -9,8 +9,10 @@ app = Flask(__name__)
 app.secret_key = "SECRET"
 app.config['UPLOAD FOLDER'] = UPLOAD_FOLDER
 
-@app.route('/add_cart/<int:itemId>/<user>', methods = ['GET'])
+@app.route('/add_cart/<itemId>/<user>', methods = ['GET'])
 def add_cart(itemId, user):
+    if 'user' not in session:
+        return redirect(url_for('index'))
     if request.method == 'GET':
         insertCart(user, itemId)
         if "items" in session:
@@ -25,7 +27,19 @@ def cart():
     if "user" in session:
         user = session["user"]
         rows = readCartItems(user)
-        return render_template('cart.html', rows = rows)
+        lst = []
+        total = 0
+
+        for row in rows:
+            data = {}
+            data['item'] = row[0]
+            data['cant'] = row[1]
+            data['total'] = row[2]
+            data['idIt'] = row[3]
+            lst.append(data)
+            total += row[2]
+
+        return render_template('cart.html', lst = lst, user = user, total = total)
     return redirect(url_for('index'))
 
 @app.route('/')
@@ -34,14 +48,12 @@ def index():
     flag = 0
     amount = 0
     user, admin = "", ""
+    
     if "user" in session:
         user = session["user"]
-        if "items" in session:
-            amount = session["items"]
-        else:
-            amount = readCart(user)
-            session["items"] = amount
+        amount = readCart(user)
         flag = 1
+
     elif "admin" in session:
         admin = session["admin"]
         flag = 2
@@ -59,6 +71,7 @@ def admin():
         data = [name, quant, price, 0, desc, 'static/' + file.filename]
         file.save(os.path.join(app.config['UPLOAD FOLDER'], filename))
         insertItem(data)
+        return redirect(url_for('index'))
     if "admin" in session:
         return render_template('admin.html')
     return redirect(url_for('index'))
@@ -69,9 +82,11 @@ def error():
 
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
+    if 'user' in session or 'admin' in session:
+        return redirect(url_for('index'))
     if request.method == "POST":
         user = request.form['user']
-        passw = request.form['passw']
+        passw = request.form['passw']  
         ans = existUser(user, passw)
         if ans:
             if ans == 1:
@@ -82,8 +97,19 @@ def login():
         return redirect(url_for('error'))
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    if 'user' in session:
+        session.pop('user', None)
+        session.pop('items', None)
+    elif 'admin' in session:
+        session.pop('admin', None)
+    return redirect(url_for('index'))
+
 @app.route('/register', methods = ['POST', 'GET'])
 def register():
+    if 'user' in session or 'admin' in session:
+        return redirect(url_for('index'))
     if request.method == "POST":
         user = request.form['user']
         pwd1 = request.form['passw1']
@@ -93,6 +119,14 @@ def register():
             return redirect(url_for('index'))
         return redirect(url_for('error'))
     return render_template('register.html')
+
+@app.route('/remove_item/<idIt>', methods = ['GET'])
+def remove_item(idIt):
+    if "user" in session:
+        if request.method == 'GET':
+            deleteCart(idIt, session['user'])
+        return redirect(url_for('cart'))
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug = True)
