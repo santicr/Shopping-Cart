@@ -6,7 +6,7 @@ def createTable():
     query1 = 'CREATE TABLE Item(Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Quantity INT, Price REAL, Sold INT, Description TEXT, URL TEXT)'
     query2 = """
     CREATE TABLE Cart(
-        User TEXT, ItemId INTEGER, FOREIGN KEY(User) REFERENCES User(Name), FOREIGN KEY(ItemId) REFERENCES Item(Id)
+        User TEXT, ItemId INTEGER, Quantity INTEGER, FOREIGN KEY(User) REFERENCES User(Name), FOREIGN KEY(ItemId) REFERENCES Item(Id), PRIMARY KEY(User, ItemId)
     )
     """
     cursor.execute(query2)
@@ -15,7 +15,7 @@ def createTable():
 
 def deleteTable():
     conn = sqlite3.connect('items.db')
-    conn.execute("DROP TABLE Item")
+    conn.execute("DROP TABLE Cart")
     conn.commit()
     conn.close()
 
@@ -51,9 +51,9 @@ def readCart(user):
     cursor = conn.cursor()
     query1 = f"SELECT * FROM Cart WHERE User = '{user}'"
     rows = cursor.execute(query1)
-    lrows = len(list(rows))
+    lst = list(rows)
     conn.close()
-    return lrows
+    return lst
 
 def insertUser(user, passw):
     conn = sqlite3.connect('items.db')
@@ -66,7 +66,22 @@ def insertUser(user, passw):
 def insertCart(userId, itemId):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
-    query1 = f"INSERT INTO Cart VALUES('{userId}', {itemId})"
+    query1 = f"INSERT INTO Cart VALUES('{userId}', {itemId}, 1)"
+    query2 = f"SELECT * FROM Cart WHERE User = '{userId}' AND ItemId = {itemId}"
+    rows = cursor.execute(query2)
+    lst = list(rows)
+    if not len(lst):
+        cursor.execute(query1)
+    else:
+        query3 = f"UPDATE Cart SET Quantity = {lst[0][2] + 1} WHERE User = '{userId}' AND ItemId = {itemId}"
+        cursor.execute(query3)
+    conn.commit()
+    conn.close()
+
+def deleteCartItem(userId):
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"DELETE FROM Cart WHERE User = '{userId}'"
     cursor.execute(query1)
     conn.commit()
     conn.close()
@@ -90,9 +105,10 @@ def existUser(user, passw):
 def readCartItems(user):
     conn = sqlite3.connect("items.db")
     cursor = conn.cursor()
-    query1 = f"SELECT Name, Count(*), Count(*) * Price, ItemId, User FROM Cart INNER JOIN Item ON Id = ItemId WHERE User = '{user}' GROUP BY ItemId"
+    query1 = f"SELECT Name, Cart.Quantity, Cart.Quantity * Price, ItemId FROM Cart INNER JOIN Item ON Id = ItemId WHERE User = '{user}'"
     rows = cursor.execute(query1)
     rows = list(rows)
+    print(rows)
     conn.close()
     return rows
 
@@ -107,14 +123,15 @@ def readItemById(idIt):
 def deleteCart(idIt, user):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
-    query1 = f"""
-            DELETE FROM Cart
-            WHERE ItemId IN (
-                SELECT ItemId FROM
-                Cart WHERE ItemId = {idIt} AND User = '{user}' LIMIT 1
-                )
-            """
+    query1 = f"SELECT * FROM Cart WHERE ItemId = {idIt} AND User = '{user}'"
+    query2 = f"DELETE FROM Cart WHERE ItemId = {idIt} AND User = '{user}'"
     row = list(cursor.execute(query1))
+    cant = row[0][2]
+    query3 = f"UPDATE Cart SET Quantity = {cant - 1} WHERE User = '{user}' AND ItemId = {idIt}"
+    if cant == 1:
+        cursor.execute(query2)
+    elif cant > 1:
+        cursor.execute(query3)
     conn.commit()
     conn.close()
     return row
@@ -124,6 +141,9 @@ def main():
     #createTable()
     #existUser('santicr', '1')
     #readCart("santicr21")
+    #insertCart("santicr21", 2)
+    #deleteCartItem('santicr21')
+    #readCartItems('santicr21')
     pass
 
 main()

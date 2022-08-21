@@ -36,8 +36,8 @@ def cart():
             data['cant'] = row[1]
             data['total'] = row[2]
             data['idIt'] = row[3]
-            lst.append(data)
             total += row[2]
+            lst.append(data)
 
         return render_template('cart.html', lst = lst, user = user, total = total)
     return redirect(url_for('index'))
@@ -51,7 +51,10 @@ def index():
     
     if "user" in session:
         user = session["user"]
-        amount = readCart(user)
+        lst = readCart(user)
+        amount = 0
+        for it in lst:
+            amount += it[2]
         flag = 1
 
     elif "admin" in session:
