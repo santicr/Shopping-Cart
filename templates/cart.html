@@ -49,11 +49,15 @@
 			<h4>
 				{{ row['item'] }} {{ row['cant'] }} {{ row['total'] }}
 					<button type="submit" class="btn btn-warning">Remover uno</button>
-				
 			</h4>
 		</form>
 		{% endfor %}
 		<h4>Total a pagar: {{ total }}</h4>
-		<button type="button" class="btn btn-danger">Pagar</button>
+        <a href="{{ url_for('address') }}">
+            <button type="submit" class="btn btn-primary">Agregar dirección</button>
+        </a>
+        <form action="{{ url_for('pay', amount = total) }}">
+            <button type="submit" class="btn btn-danger">Pagar</button>
+        </form>
 	</body>
 </html>

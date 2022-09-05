@@ -131,5 +131,22 @@ def remove_item(idIt):
         return redirect(url_for('cart'))
     return redirect(url_for('index'))
 
+@app.route('/address', methods = ['POST', 'GET'])
+def address():
+    if "user" in session:
+        if request.method == 'POST':
+            add = request.form['add']
+            city = request.form['city']
+            phone = request.form['phone']
+            data = [add, city, phone]
+            insertAddress(session['user'], data)
+            return redirect(url_for('cart'))
+        return render_template('address.html')
+    return redirect(url_for('index'))
+
+@app.route('/pay/<amount>')
+def pay(amount):
+    return render_template('pay.html')
+
 if __name__ == "__main__":
     app.run(debug = True)

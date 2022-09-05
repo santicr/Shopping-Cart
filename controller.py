@@ -9,7 +9,8 @@ def createTable():
         User TEXT, ItemId INTEGER, Quantity INTEGER, FOREIGN KEY(User) REFERENCES User(Name), FOREIGN KEY(ItemId) REFERENCES Item(Id), PRIMARY KEY(User, ItemId)
     )
     """
-    cursor.execute(query2)
+    query3 = "CREATE TABLE ClientAd (Id INTEGER PRIMARY KEY AUTOINCREMENT, User TEXT, Address TEXT, City TEXT, Phone TEXT, FOREIGN KEY(User) REFERENCES User(NAME))"
+    cursor.execute(query3)
     conn.commit()
     conn.close()
 
@@ -135,6 +136,14 @@ def deleteCart(idIt, user):
     conn.commit()
     conn.close()
     return row
+
+def insertAddress(user, data):
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"INSERT INTO ClientAd(User, Address, City, Phone) VALUES('{user}', '{data[0]}', '{data[1]}', '{data[2]}')"
+    cursor.execute(query1)
+    conn.commit()
+    conn.close()
 
 def main():
     #deleteTable()
