@@ -140,10 +140,24 @@ def deleteCart(idIt, user):
 def insertAddress(user, data):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
-    query1 = f"INSERT INTO ClientAd(User, Address, City, Phone) VALUES('{user}', '{data[0]}', '{data[1]}', '{data[2]}')"
-    cursor.execute(query1)
+    query1 = f"SELECT User FROM ClientAd WHERE User = '{user}'"
+    query2 = f"INSERT INTO ClientAd(User, Address, City, Phone) VALUES('{user}', '{data[0]}', '{data[1]}', '{data[2]}')"
+    lst = list(cursor.execute(query1))
+    if len(lst) == 0:
+        cursor.execute(query2)
+    else:
+        query3 = f"UPDATE ClientAd SET Address = '{data[0]}', City = '{data[1]}', Phone = '{data[2]}' WHERE User = '{user}'"
+        cursor.execute(query3)
     conn.commit()
     conn.close()
+
+def readAdd(user):
+    conn = sqlite3.connect('items.db')
+    cursor = conn.cursor()
+    query1 = f"SELECT Address, City FROM ClientAd WHERE User = '{user}'"
+    lst = list(cursor.execute(query1))
+    conn.close()
+    return lst
 
 def main():
     #deleteTable()

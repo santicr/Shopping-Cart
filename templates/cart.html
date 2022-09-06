@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-		<title>Carrrito de compras</title>
+		<title>Carrito de compras</title>
 	</head>
 	<body>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -53,9 +53,17 @@
 		</form>
 		{% endfor %}
 		<h4>Total a pagar: {{ total }}</h4>
-        <a href="{{ url_for('address') }}">
-            <button type="submit" class="btn btn-primary">Agregar dirección</button>
-        </a>
+        {% if ad|length == 0 %}
+            <a href="{{ url_for('address') }}">
+                <button type="submit" class="btn btn-primary">Agregar dirección</button>
+            </a>
+        {% elif ad|length > 0 %}
+            <h4>Tu direccion es: {{ ad[0][0] }}</h4>
+            <h4>La ciudad es: {{ ad[0][1] }}</h4>
+            <a href="{{ url_for('address') }}">
+                <button type="submit" class="btn btn-primary">Eliminar e introducir nueva direccion</button>
+            </a>
+        {% endif %}
         <form action="{{ url_for('pay', amount = total) }}">
             <button type="submit" class="btn btn-danger">Pagar</button>
         </form>

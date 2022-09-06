@@ -38,8 +38,10 @@ def cart():
             data['idIt'] = row[3]
             total += row[2]
             lst.append(data)
+        
+        ad = readAdd(user)
 
-        return render_template('cart.html', lst = lst, user = user, total = total)
+        return render_template('cart.html', lst = lst, user = user, total = total, ad = ad)
     return redirect(url_for('index'))
 
 @app.route('/')
