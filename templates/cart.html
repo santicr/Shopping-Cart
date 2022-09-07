@@ -64,7 +64,7 @@
                 <button type="submit" class="btn btn-primary">Eliminar e introducir nueva direccion</button>
             </a>
         {% endif %}
-        <form action="{{ url_for('pay', amount = total) }}">
+        <form action="{{ url_for('pay', user = user) }}">
             <button type="submit" class="btn btn-danger">Pagar</button>
         </form>
 	</body>

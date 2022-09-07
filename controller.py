@@ -10,13 +10,14 @@ def createTable():
     )
     """
     query3 = "CREATE TABLE ClientAd (Id INTEGER PRIMARY KEY AUTOINCREMENT, User TEXT, Address TEXT, City TEXT, Phone TEXT, FOREIGN KEY(User) REFERENCES User(NAME))"
-    cursor.execute(query3)
+    query4 = "CREATE TABLE UserCard (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, LastName1 TEXT, LastName2 TEXT, CCNum TEXT, CCV TEXT, Balance REAL)"
+    cursor.execute(query4)
     conn.commit()
     conn.close()
 
 def deleteTable():
     conn = sqlite3.connect('items.db')
-    conn.execute("DROP TABLE Cart")
+    conn.execute("DROP TABLE UserCard")
     conn.commit()
     conn.close()
 
@@ -159,14 +160,33 @@ def readAdd(user):
     conn.close()
     return lst
 
+def insertCc():
+    conn = sqlite3.connect("items.db")
+    cursor = conn.cursor()
+    query1 = """
+    INSERT INTO UserCard (Name, LastName1, LastName2, CCNum, CCV, Balance)
+    VALUES ('Santiago', 'Caicedo', 'Rojas', '12345678901234', '783', 1000000.0)
+    """
+    cursor.execute(query1)
+    conn.commit()
+    conn.close()
+
+def verifyCard(data):
+    ans = False, 0
+    conn = sqlite3.connect("items.db")
+    cursor = conn.cursor()
+    print(data)
+    query1 = f"""
+    SELECT Balance
+    FROM UserCard
+    WHERE Name = '{data[0]}' AND LastName1 = '{data[1]}' AND LastName2 = '{data[2]}' AND CCNum = '{data[3]}' AND CCV = '{data[4]}' 
+    """
+    lst = list(cursor.execute(query1))
+    if len(lst) == 1:
+        ans = True, lst[0][0]
+    return ans
+
 def main():
-    #deleteTable()
-    #createTable()
-    #existUser('santicr', '1')
-    #readCart("santicr21")
-    #insertCart("santicr21", 2)
-    #deleteCartItem('santicr21')
-    #readCartItems('santicr21')
     pass
 
 main()

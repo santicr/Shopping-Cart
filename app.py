@@ -146,9 +146,39 @@ def address():
         return render_template('address.html')
     return redirect(url_for('index'))
 
-@app.route('/pay/<amount>')
-def pay(amount):
-    return render_template('pay.html')
+@app.route('/pay/<user>', methods = ['GET'])
+def pay(user):
+    if "user" in session:
+        if request.method == 'GET':
+            return render_template('pay.html')
+
+@app.route('/payProcess', methods = ['POST'])
+def payProcess():
+    if "user" in session:
+        user = session['user']
+        if request.method == 'POST':
+            name = request.form['name']
+            lname1 = request.form['lname1']
+            lname2 = request.form['lname2']
+            ccnum = request.form['number']
+            ccv = request.form['code']
+            data = [name, lname1, lname2, ccnum, ccv]
+            ans = verifyCard(data)
+            rows = readCartItems(user)
+
+            if ans[0]:
+                total = 0
+                for row in rows:
+                    total += row[2]
+                
+                if total > 0 and ans[1] >= total:
+                    return redirect(url_for('index'))
+                else:
+                    return redirect(url_for('pay', user = user))
+            else:
+                return redirect(url_for('cart'))
+    return redirect(url_for('index'))
+
 
 if __name__ == "__main__":
     app.run(debug = True)
