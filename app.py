@@ -172,6 +172,7 @@ def payProcess():
                     total += row[2]
                 
                 if total > 0 and ans[1] >= total:
+                    payFunc(user, ccnum, total)
                     return redirect(url_for('index'))
                 else:
                     return redirect(url_for('pay', user = user))

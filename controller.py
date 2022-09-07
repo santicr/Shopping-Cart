@@ -186,6 +186,28 @@ def verifyCard(data):
         ans = True, lst[0][0]
     return ans
 
+def payFunc(user, ccnum, total):
+    conn = sqlite3.connect("items.db")
+    cursor = conn.cursor()
+    query1 = f"""
+    DELETE FROM Cart WHERE User = '{user}'
+    """
+    query2 = f"""
+    SELECT Balance
+    FROM UserCard
+    WHERE CCnum = '{ccnum}'
+    """
+    cursor.execute(query1)
+    lst = list(cursor.execute(query2))
+    query3 = f"""
+    UPDATE UserCard
+    SET Balance = {lst[0][0]} - {total}
+    WHERE CCnum = '{ccnum}'
+    """
+    cursor.execute(query3)
+    conn.commit()
+    conn.close()
+
 def main():
     pass
 
