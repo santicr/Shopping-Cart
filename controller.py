@@ -33,8 +33,7 @@ def readItem():
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
     query1 = "SELECT * FROM item"
-    rows = cursor.execute(query1)
-    print(rows)
+    rows = list(cursor.execute(query1))
     return rows
 
 def readUser(user):
@@ -207,6 +206,18 @@ def payFunc(user, ccnum, total):
     cursor.execute(query3)
     conn.commit()
     conn.close()
+
+def itemsToShow(itemId, quant2):
+    ans = quant2
+    conn = sqlite3.connect("items.db")
+    cursor = conn.cursor()
+    query1 = f"SELECT Quantity FROM Item WHERE Id = {itemId}"
+    lst = list(cursor.execute(query1))
+    if len(lst) > 0:
+        quant = int(lst[0][0])
+        ans = quant - quant2
+    conn.close()
+    return ans
 
 def main():
     pass

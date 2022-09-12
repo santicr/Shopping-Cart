@@ -50,10 +50,19 @@ def index():
     flag = 0
     amount = 0
     user, admin = "", ""
+    rows = list(map(list, rows))
     
     if "user" in session:
         user = session["user"]
         lst = readCart(user)
+        lst = list(map(list, lst))
+
+        for l in lst:
+            ans = itemsToShow(l[1], l[2])
+            for i in range(len(rows)):
+                if rows[i][0] == l[1]:
+                    rows[i][2] = ans
+
         amount = 0
         for it in lst:
             amount += it[2]
@@ -175,11 +184,12 @@ def payProcess():
                     payFunc(user, ccnum, total)
                     return redirect(url_for('index'))
                 else:
-                    return redirect(url_for('pay', user = user))
+                    return redirect(url_for('error'))
             else:
-                return redirect(url_for('cart'))
-    return redirect(url_for('index'))
+                return redirect(url_for('error'))
+    return redirect(url_for('error'))
 
 
 if __name__ == "__main__":
+    index()
     app.run(debug = True)
