@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from controller import *
 from werkzeug.utils import secure_filename
+from datetime import datetime
 import os
 
 UPLOAD_FOLDER = 'static'
@@ -177,14 +178,16 @@ def payProcess():
 
             if ans[0]:
                 total = 0
+
                 for row in rows:
                     total += row[2]
-                
+
                 if total > 0 and ans[1] >= total:
                     payFunc(user, ccnum, total)
                     return redirect(url_for('index'))
                 else:
                     return redirect(url_for('error'))
+
             else:
                 return redirect(url_for('error'))
     return redirect(url_for('error'))

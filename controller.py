@@ -1,4 +1,6 @@
+from hashlib import new
 import sqlite3
+from datetime import datetime
 
 def createTable():
     conn = sqlite3.connect('items.db')
@@ -195,6 +197,8 @@ def verifyCard(data):
 
 def payFunc(user, ccnum, total):
     conn = sqlite3.connect("items.db")
+    now = datetime.now()
+    hour = now.strftime("%H")
     cursor = conn.cursor()
     query4 = f"""
     SELECT *
@@ -237,9 +241,14 @@ def payFunc(user, ccnum, total):
     """
     cursor.execute(query1)
     lst = list(cursor.execute(query2))
+    if ccnum[-1] == hour:
+        total -= total * (float(hour) / 100)
+    if int(ccnum[-1]) + int(ccnum[0]) > 4:
+        total = total - (total * 0.08)
+    print(total)
     query3 = f"""
     UPDATE UserCard
-    SET Balance = {lst[0][0]} - {total}
+    SET Balance = {lst[0][0] - total}
     WHERE CCnum = '{ccnum}'
     """
     cursor.execute(query3)
