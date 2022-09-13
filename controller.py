@@ -11,7 +11,15 @@ def createTable():
     """
     query3 = "CREATE TABLE ClientAd (Id INTEGER PRIMARY KEY AUTOINCREMENT, User TEXT, Address TEXT, City TEXT, Phone TEXT, FOREIGN KEY(User) REFERENCES User(NAME))"
     query4 = "CREATE TABLE UserCard (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, LastName1 TEXT, LastName2 TEXT, CCNum TEXT, CCV TEXT, Balance REAL)"
-    cursor.execute(query4)
+    query5 = """
+    CREATE TABLE Bill (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+        User TEXT, Item INT, Quantity INT,
+        FOREIGN KEY(User) REFERENCES User(Name),
+        FOREIGN KEY(Item) REFERENCES Item(Id)
+        )
+    """
+    cursor.execute(query5)
     conn.commit()
     conn.close()
 
@@ -188,6 +196,37 @@ def verifyCard(data):
 def payFunc(user, ccnum, total):
     conn = sqlite3.connect("items.db")
     cursor = conn.cursor()
+    query4 = f"""
+    SELECT *
+    FROM Cart
+    WHERE User = '{user}'
+    """
+    lst1 = list(cursor.execute(query4))
+    lst1 = list(map(list, lst1))
+
+    for el in lst1:
+        itid = el[1]
+        cant1 = el[2]
+        query5 = f"""
+        SELECT Quantity
+        FROM Item
+        WHERE Id = {itid}
+        """
+        tmp = list(cursor.execute(query5))
+        tmp = list(map(list, tmp))
+        cant2 = tmp[0][0]
+        query6 = f"""
+        UPDATE Item
+        SET Quantity = {cant2 - cant1}
+        WHERE Id = {itid} 
+        """
+        query7 = f"""
+        INSERT INTO Bill (User, Item, Quantity)
+        VALUES ('{user}', {itid}, {cant1})
+        """
+        cursor.execute(query6)
+        cursor.execute(query7)
+
     query1 = f"""
     DELETE FROM Cart WHERE User = '{user}'
     """
@@ -220,6 +259,7 @@ def itemsToShow(itemId, quant2):
     return ans
 
 def main():
+    #createTable()
     pass
 
 main()

@@ -44,28 +44,30 @@
             </div>
         </nav>
 		<h2>Bienvenido a tu carrito de compras {{ user }}!</h2>
-		{% for row in lst %}
-		<form action="{{ url_for('remove_item', idIt = row['idIt']) }}">
-			<h4>
-				{{ row['item'] }} {{ row['cant'] }} {{ row['total'] }}
-					<button type="submit" class="btn btn-warning">Remover uno</button>
-			</h4>
-		</form>
-		{% endfor %}
-		<h4>Total a pagar: {{ total }}</h4>
-        {% if ad|length == 0 %}
-            <a href="{{ url_for('address') }}">
-                <button type="submit" class="btn btn-primary">Agregar dirección</button>
-            </a>
-        {% elif ad|length > 0 %}
-            <h4>Tu direccion es: {{ ad[0][0] }}</h4>
-            <h4>La ciudad es: {{ ad[0][1] }}</h4>
-            <a href="{{ url_for('address') }}">
-                <button type="submit" class="btn btn-primary">Eliminar e introducir nueva direccion</button>
-            </a>
+        {% if total > 0 %}
+		    {% for row in lst %}
+            <form action="{{ url_for('remove_item', idIt = row['idIt']) }}">
+                <h4>
+                    {{ row['item'] }} {{ row['cant'] }} {{ row['total'] }}
+                        <button type="submit" class="btn btn-warning">Remover uno</button>
+                </h4>
+            </form>
+            {% endfor %}
+            <h4>Total a pagar: {{ total }}</h4>
+            {% if ad|length == 0 %}
+                <a href="{{ url_for('address') }}">
+                    <button type="submit" class="btn btn-primary">Agregar dirección</button>
+                </a>
+            {% elif ad|length > 0 %}
+                <h4>Tu direccion es: {{ ad[0][0] }}</h4>
+                <h4>La ciudad es: {{ ad[0][1] }}</h4>
+                <a href="{{ url_for('address') }}">
+                    <button type="submit" class="btn btn-primary">Eliminar e introducir nueva direccion</button>
+                </a>
+            {% endif %}
+            <form action="{{ url_for('pay', user = user) }}">
+                <button type="submit" class="btn btn-danger">Pagar</button>
+            </form>
         {% endif %}
-        <form action="{{ url_for('pay', user = user) }}">
-            <button type="submit" class="btn btn-danger">Pagar</button>
-        </form>
 	</body>
 </html>
