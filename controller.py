@@ -119,7 +119,6 @@ def readCartItems(user):
     query1 = f"SELECT Name, Cart.Quantity, Cart.Quantity * Price, ItemId FROM Cart INNER JOIN Item ON Id = ItemId WHERE User = '{user}'"
     rows = cursor.execute(query1)
     rows = list(rows)
-    print(rows)
     conn.close()
     return rows
 
@@ -184,7 +183,6 @@ def verifyCard(data):
     ans = False, 0
     conn = sqlite3.connect("items.db")
     cursor = conn.cursor()
-    print(data)
     query1 = f"""
     SELECT Balance
     FROM UserCard
@@ -245,7 +243,6 @@ def payFunc(user, ccnum, total):
         total -= total * (float(hour) / 100)
     if int(ccnum[-1]) + int(ccnum[0]) > 4:
         total = total - (total * 0.08)
-    print(total)
     query3 = f"""
     UPDATE UserCard
     SET Balance = {lst[0][0] - total}
