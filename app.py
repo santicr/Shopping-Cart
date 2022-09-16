@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import Flask, render_template, request, redirect, session, url_for
 from controller import *
 from werkzeug.utils import secure_filename
@@ -101,7 +102,7 @@ def login():
         return redirect(url_for('index'))
     if request.method == "POST":
         user = request.form['user']
-        passw = request.form['passw']  
+        passw = request.form['passw']
         ans = existUser(user, passw)
         if ans:
             if ans == 1:
@@ -162,6 +163,12 @@ def pay(user):
         if request.method == 'GET':
             return render_template('pay.html')
 
+@app.route('/discount/<total>', methods = ['GET'])
+def disc(total):
+    if 'user' in session:
+        return render_template('discount.html', total = total)
+    return url_for(redirect('index'))
+
 @app.route('/payProcess', methods = ['POST'])
 def payProcess():
     if "user" in session:
@@ -183,7 +190,11 @@ def payProcess():
                     total += row[2]
 
                 if total > 0 and ans[1] >= total:
-                    payFunc(user, ccnum, total)
+                    res = payFunc(user, ccnum, total)
+                    if res[0] or res[1]:
+                        total = 0
+                        for r in res: total += r
+                        return redirect(url_for('disc', total = total))
                     return redirect(url_for('index'))
                 else:
                     return redirect(url_for('error'))
@@ -191,7 +202,6 @@ def payProcess():
             else:
                 return redirect(url_for('error'))
     return redirect(url_for('error'))
-
 
 if __name__ == "__main__":
     index()

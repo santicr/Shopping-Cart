@@ -173,7 +173,7 @@ def insertCc():
     cursor = conn.cursor()
     query1 = """
     INSERT INTO UserCard (Name, LastName1, LastName2, CCNum, CCV, Balance)
-    VALUES ('Santiago', 'Caicedo', 'Rojas', '12345678901234', '783', 1000000.0)
+    VALUES ('Santiago', 'Caicedo', 'Rojas', '12345678901235', '783', 1000000.0)
     """
     cursor.execute(query1)
     conn.commit()
@@ -192,6 +192,17 @@ def verifyCard(data):
     if len(lst) == 1:
         ans = True, lst[0][0]
     return ans
+
+def discount(ccnum, hour, total):
+    ans = [0, 0]
+    if ccnum[-1] == hour:
+        total -= total * (float(hour) / 100)
+        ans[0] = (float(hour) / 100)
+    if int(ccnum[-1]) + int(ccnum[0]) > 4:
+        total = total - (total * 0.08)
+        ans[1] = (total * 0.08)
+    
+    return ans, total
 
 def payFunc(user, ccnum, total):
     conn = sqlite3.connect("items.db")
@@ -239,10 +250,7 @@ def payFunc(user, ccnum, total):
     """
     cursor.execute(query1)
     lst = list(cursor.execute(query2))
-    if ccnum[-1] == hour:
-        total -= total * (float(hour) / 100)
-    if int(ccnum[-1]) + int(ccnum[0]) > 4:
-        total = total - (total * 0.08)
+    ans, total = discount(ccnum, hour, total)
     query3 = f"""
     UPDATE UserCard
     SET Balance = {lst[0][0] - total}
@@ -251,6 +259,7 @@ def payFunc(user, ccnum, total):
     cursor.execute(query3)
     conn.commit()
     conn.close()
+    return ans
 
 def itemsToShow(itemId, quant2):
     ans = quant2
@@ -266,6 +275,7 @@ def itemsToShow(itemId, quant2):
 
 def main():
     #createTable()
+    #insertCc()
     pass
 
 main()
