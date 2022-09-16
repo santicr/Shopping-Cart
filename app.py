@@ -73,6 +73,7 @@ def index():
     elif "admin" in session:
         admin = session["admin"]
         flag = 2
+    print(rows[0])
     return render_template('index.html', data = rows, user = user, flag = flag, admin = admin, amount = amount)
 
 @app.route('/admin', methods = ['POST', 'GET'])
@@ -92,9 +93,10 @@ def admin():
         return render_template('admin.html')
     return redirect(url_for('index'))
 
-@app.route('/error')
-def error():
-    return render_template('error.html')
+@app.route('/error/<int:flag>')
+def error(flag):
+    if "user" in session:
+        return render_template('error.html', flag = flag)
 
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
@@ -174,6 +176,7 @@ def payProcess():
     if "user" in session:
         user = session['user']
         if request.method == 'POST':
+            flag = 0
             name = request.form['name']
             lname1 = request.form['lname1']
             lname2 = request.form['lname2']
@@ -185,6 +188,7 @@ def payProcess():
 
             if ans[0]:
                 total = 0
+                flag = 1
 
                 for row in rows:
                     total += row[2]
@@ -197,10 +201,9 @@ def payProcess():
                         return redirect(url_for('disc', total = total))
                     return redirect(url_for('index'))
                 else:
-                    return redirect(url_for('error'))
-
+                    return redirect(url_for('error', flag = flag))
             else:
-                return redirect(url_for('error'))
+                return redirect(url_for('error', flag = flag))
     return redirect(url_for('error'))
 
 if __name__ == "__main__":
