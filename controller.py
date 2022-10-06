@@ -1,4 +1,3 @@
-from hashlib import new
 import sqlite3
 from datetime import datetime
 
