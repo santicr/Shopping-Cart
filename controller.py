@@ -112,7 +112,7 @@ def existUser(user, passw):
             ans = 2
     conn.close()
     return ans
-
+    
 def readCartItems(user):
     conn = sqlite3.connect("items.db")
     cursor = conn.cursor()
@@ -122,6 +122,10 @@ def readCartItems(user):
     conn.close()
     return rows
 
+"""
+Function to read an item.
+Input: Item id.
+"""
 def readItemById(idIt):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
@@ -130,6 +134,11 @@ def readItemById(idIt):
     conn.close()
     return row
 
+"""
+Function to delete one element of a cart from an user
+Input: Item id and user
+Output: None
+"""
 def deleteCart(idIt, user):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
@@ -144,8 +153,12 @@ def deleteCart(idIt, user):
         cursor.execute(query3)
     conn.commit()
     conn.close()
-    return row
 
+"""
+Function to insert user address
+Input: An user and its address info/data
+Output: None
+"""
 def insertAddress(user, data):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
@@ -160,6 +173,11 @@ def insertAddress(user, data):
     conn.commit()
     conn.close()
 
+"""
+Function to read user address.
+Input: An user
+Output: A list with all address info (city, address, phone, etc)
+"""
 def readAdd(user):
     conn = sqlite3.connect('items.db')
     cursor = conn.cursor()
@@ -168,6 +186,9 @@ def readAdd(user):
     conn.close()
     return lst
 
+"""
+Function to insert a credit_card as an example, no parameters.
+"""
 def insertCc():
     conn = sqlite3.connect("items.db")
     cursor = conn.cursor()
