@@ -10,6 +10,9 @@
             <p>Saldo insuficiente</p>
         {% elif flag == 0 %}
             <p>Datos de tarjeta de crédito no válidas</p>
+        {% elif flag == 2 %}
+            <p>Error, la cantidad de los productos a comprar es mayor a la disponible</p>
+            <p>Elimina los productos que tienes en el carrito</p>
         {% endif %}
         <a href="{{ url_for('index') }}">Regresar al index</a>
     </body>

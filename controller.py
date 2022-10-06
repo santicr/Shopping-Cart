@@ -199,6 +199,38 @@ def insertCc():
     conn.commit()
     conn.close()
 
+def verifyAddCart(itemId):
+    conn = sqlite3.connect("items.db")
+    cursor = conn.cursor()
+    ans = True
+    query1 = f"""
+    SELECT Quantity
+    FROM Item
+    WHERE Id = '{itemId}'
+    """
+    lst = list(cursor.execute(query1))
+    quant = int(lst[0][0])
+    if quant == 0:
+        ans = False
+    conn.close()
+    return ans
+    
+def verifyPayCart(itemId, quant):
+    conn = sqlite3.connect("items.db")
+    cursor = conn.cursor()
+    ans = True
+    query1 = f"""
+    SELECT Quantity
+    FROM Item
+    WHERE Id = {itemId}
+    """
+    lst = list(cursor.execute(query1))
+    qItem = int(lst[0][0])
+    if quant > qItem:
+        ans = False
+    conn.close()
+    return ans
+
 def verifyCard(data):
     ans = False, 0
     conn = sqlite3.connect("items.db")
@@ -219,8 +251,8 @@ def discount(ccnum, hour, total):
         total -= total * (float(hour) / 100)
         ans[0] = (float(hour) / 100)
     if int(ccnum[-1]) + int(ccnum[0]) > 4:
-        total = total - (total * 0.08)
         ans[1] = (total * 0.08)
+        total -= (total * 0.08)
     
     return ans, total
 

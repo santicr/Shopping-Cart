@@ -16,11 +16,12 @@ def add_cart(itemId, user):
     if 'user' not in session:
         return redirect(url_for('index'))
     if request.method == 'GET':
-        insertCart(user, itemId)
-        if "items" in session:
-            session["items"] += 1
-        else:
-            session["items"] = 1
+        if verifyAddCart(itemId):
+            insertCart(user, itemId)
+            if "items" in session:
+                session["items"] += 1
+            else:
+                session["items"] = 1
         return redirect(url_for('index'))
     return redirect(url_for('error'))
 
@@ -185,26 +186,31 @@ def payProcess():
             data = [name, lname1, lname2, ccnum, ccv]
             ans = verifyCard(data)
             rows = readCartItems(user)
+            flag_pay = True
+            
+            for row in rows:
+                flag_pay = verifyPayCart(row[3], row[1])
 
-            if ans[0]:
-                total = 0
-                flag = 1
+            if flag_pay:
+                if ans[0]:
+                    total = 0
+                    flag = 1
 
-                for row in rows:
-                    total += row[2]
+                    for row in rows:
+                        total += row[2]
 
-                if total > 0 and ans[1] >= total:
-                    res = payFunc(user, ccnum, total)
-                    if res[0] or res[1]:
-                        total = 0
-                        for r in res: total += r
-                        return redirect(url_for('disc', total = total))
-                    return redirect(url_for('index'))
+                    if total > 0 and ans[1] >= total:
+                        res = payFunc(user, ccnum, total)
+                        if res[0] or res[1]:
+                            total = 0
+                            for r in res: total += r
+                            return redirect(url_for('disc', total = total))
+                        return redirect(url_for('index'))
+                    else:
+                        return redirect(url_for('error', flag = flag))
                 else:
                     return redirect(url_for('error', flag = flag))
-            else:
-                return redirect(url_for('error', flag = flag))
-    return redirect(url_for('error'))
+    return redirect(url_for('error', flag = 2))
 
 if __name__ == "__main__":
     index()
