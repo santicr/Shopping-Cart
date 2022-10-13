@@ -1,9 +1,10 @@
-from crypt import methods
 from flask import Flask, render_template, request, redirect, session, url_for
-from controller import *
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
+import sys
+sys.path.append('controller')
+import c
 
 UPLOAD_FOLDER = 'static'
 
@@ -16,8 +17,8 @@ def add_cart(itemId, user):
     if 'user' not in session:
         return redirect(url_for('index'))
     if request.method == 'GET':
-        if verifyAddCart(itemId):
-            insertCart(user, itemId)
+        if c.verifyCartAdd(itemId):
+            c.insertCart(user, itemId)
             if "items" in session:
                 session["items"] += 1
             else:
@@ -29,7 +30,7 @@ def add_cart(itemId, user):
 def cart():
     if "user" in session:
         user = session["user"]
-        rows = readCartItems(user)
+        rows = c.readCartItems(user)
         lst = []
         total = 0
 
@@ -42,14 +43,14 @@ def cart():
             total += row[2]
             lst.append(data)
         
-        ad = readAdd(user)
+        ad = c.readUserAddress(user)
 
         return render_template('cart.html', lst = lst, user = user, total = total, ad = ad)
     return redirect(url_for('index'))
 
 @app.route('/')
 def index():
-    rows = readItem()
+    rows = c.readItems()
     flag = 0
     amount = 0
     user, admin = "", ""
@@ -57,11 +58,11 @@ def index():
     
     if "user" in session:
         user = session["user"]
-        lst = readCart(user)
+        lst = c.readCart(user)
         lst = list(map(list, lst))
 
         for l in lst:
-            ans = itemsToShow(l[1], l[2])
+            ans = c.itemsToShow(l[1], l[2])
             for i in range(len(rows)):
                 if rows[i][0] == l[1]:
                     rows[i][2] = ans
@@ -88,7 +89,7 @@ def admin():
         filename = secure_filename(file.filename)
         data = [name, quant, price, 0, desc, 'static/' + file.filename]
         file.save(os.path.join(app.config['UPLOAD FOLDER'], filename))
-        insertItem(data)
+        c.insertItem(data)
         return redirect(url_for('index'))
     if "admin" in session:
         return render_template('admin.html')
@@ -106,7 +107,7 @@ def login():
     if request.method == "POST":
         user = request.form['user']
         passw = request.form['passw']
-        ans = existUser(user, passw)
+        ans = c.verifyUser(user, passw)
         if ans:
             if ans == 1:
                 session["user"] = user
@@ -133,8 +134,8 @@ def register():
         user = request.form['user']
         pwd1 = request.form['passw1']
         pwd2 = request.form['passw2']
-        if pwd1 == pwd2 and readUser(user):
-            insertUser(user, pwd1)
+        if pwd1 == pwd2 and c.existUser(user):
+            c.insertUser(user, pwd1)
             return redirect(url_for('index'))
         return redirect(url_for('error'))
     return render_template('register.html')
@@ -143,7 +144,7 @@ def register():
 def remove_item(idIt):
     if "user" in session:
         if request.method == 'GET':
-            deleteCart(idIt, session['user'])
+            c.deleteCartItem(idIt, session['user'])
         return redirect(url_for('cart'))
     return redirect(url_for('index'))
 
@@ -155,7 +156,7 @@ def address():
             city = request.form['city']
             phone = request.form['phone']
             data = [add, city, phone]
-            insertAddress(session['user'], data)
+            c.insertUserAddress(session['user'], data)
             return redirect(url_for('cart'))
         return render_template('address.html')
     return redirect(url_for('index'))
@@ -184,12 +185,12 @@ def payProcess():
             ccnum = request.form['number']
             ccv = request.form['code']
             data = [name, lname1, lname2, ccnum, ccv]
-            ans = verifyCard(data)
-            rows = readCartItems(user)
+            ans = c.verifyCard(data)
+            rows = c.readCartItems(user)
             flag_pay = True
             
             for row in rows:
-                flag_pay = verifyPayCart(row[3], row[1])
+                flag_pay = c.verifyPayCart(row[3], row[1])
 
             if flag_pay:
                 if ans[0]:
@@ -200,7 +201,7 @@ def payProcess():
                         total += row[2]
 
                     if total > 0 and ans[1] >= total:
-                        res = payFunc(user, ccnum, total)
+                        res = c.payFunc(user, ccnum, total)
                         if res[0] or res[1]:
                             total = 0
                             for r in res: total += r
