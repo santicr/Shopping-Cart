@@ -19,6 +19,33 @@ def existUser(user):
     return ans
 
 """
+Function to verify password security requirements
+Input: Password
+Output: True if password meets requirements, otherwise, false
+"""
+def verifyUserPassword(passw):
+    ans = False
+    flag1, flag2 = False, False
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    special = {'!': 1, '@': 1, '#': 1, '$': 1, '%': 1, '^': 1, '&': 1, '*': 1, '(': 1, ')' : 1}
+    if(len(passw) >= 8):
+        i = 0
+        while(i < len(passw)):
+            c = passw[i]
+            if c in special:
+                flag1 = True
+            if c in abc:
+                flag2 = True
+            i += 1
+    else:
+        ans = False
+    if flag1 and flag2:
+        ans = True
+    return ans
+
+"""
 Function to verify if user and password are in db (also if user is admin or user)
 Input: User and password
 Output: An integer representing if user exists, if its user or if its admin
