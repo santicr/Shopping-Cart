@@ -1,6 +1,6 @@
 import sqlite3
 from datetime import datetime
-from controller_cart import deleteCart
+from controller_cart import deleteCart, readCartItems
 
 DB_PATH = "/Users/santicr/Desktop/Github/Shopping-Cart/items.db"
 
@@ -31,9 +31,13 @@ Output: How many discounts where applied and the total amount of paying when dis
 """
 def discount(ccnum, hour, total):
     ans = [0, 0]
+    if int(hour) >= 12:
+        hour = int(hour)
+        hour -= 12
+        hour = str(hour)
     if ccnum[-1] == hour:
+        ans[0] = total * (float(hour) / 100)
         total -= total * (float(hour) / 100)
-        ans[0] = (float(hour) / 100)
     if int(ccnum[-1]) + int(ccnum[0]) > 4:
         ans[1] = (total * 0.08)
         total -= (total * 0.08)
@@ -106,6 +110,7 @@ def payFunc(user, ccnum, total):
 """
 Function to verify that the data of a credit card is valid
 Input: All CreditCard fields, name, number, lastname, ccv
+Output: Balance of that creditcard
 """
 def verifyCard(data):
     ans = False, 0
@@ -119,4 +124,32 @@ def verifyCard(data):
     lst = list(cursor.execute(query1))
     if len(lst) == 1:
         ans = True, lst[0][0]
+    return ans
+
+def verifyProductsCart(products):
+    total = 0
+    flag = True
+    for p in products:
+        flag = verifyPayCart(p[3], p[1])
+        total += p[2]
+    return total, flag
+
+def payment(data, user):
+    ans = 0
+    total = 0
+    flag_pay = True
+    card_flag, balance = verifyCard(data)
+    products = readCartItems(user)
+    total, flag_pay = verifyProductsCart(products)
+    
+    if card_flag:
+        ans = 1
+        if flag_pay:
+            ans = 2
+            if balance >= total:
+                ans = 3
+                res = payFunc(user, data[3], total)
+                if res[0] or res[1]:
+                    ans = 0
+                    for r in res: ans += r
     return ans

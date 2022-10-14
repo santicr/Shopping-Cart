@@ -49,4 +49,12 @@ def test_verify_user_passw_decision():
     verifyUserPassword_("Admin1234@")
     verifyUserPassword_("admin1234")
 
-test_verify_user_passw_decision()
+#Func 6
+def test_discount_statement():
+    discount_("52345678901230", "12", 10000)
+
+def test_discount_desicion():
+    discount_("52345678901230", "12", 10000)
+    discount_("12345678901233", "11", 10000)
+
+test_discount_desicion()

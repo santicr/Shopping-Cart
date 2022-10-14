@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.utils import secure_filename
-from datetime import datetime
 import os
 import sys
 sys.path.append('controller')
@@ -166,6 +165,7 @@ def pay(user):
     if "user" in session:
         if request.method == 'GET':
             return render_template('pay.html')
+    return redirect(url_for('index'))
 
 @app.route('/discount/<total>', methods = ['GET'])
 def disc(total):
@@ -178,40 +178,17 @@ def payProcess():
     if "user" in session:
         user = session['user']
         if request.method == 'POST':
-            flag = 0
             name = request.form['name']
             lname1 = request.form['lname1']
             lname2 = request.form['lname2']
             ccnum = request.form['number']
             ccv = request.form['code']
             data = [name, lname1, lname2, ccnum, ccv]
-            ans = c.verifyCard(data)
-            rows = c.readCartItems(user)
-            flag_pay = True
-            
-            for row in rows:
-                flag_pay = c.verifyPayCart(row[3], row[1])
+            ans = c.payment(data, user)
 
-            if flag_pay:
-                if ans[0]:
-                    total = 0
-                    flag = 1
-
-                    for row in rows:
-                        total += row[2]
-
-                    if total > 0 and ans[1] >= total:
-                        res = c.payFunc(user, ccnum, total)
-                        if res[0] or res[1]:
-                            total = 0
-                            for r in res: total += r
-                            return redirect(url_for('disc', total = total))
-                        return redirect(url_for('index'))
-                    else:
-                        return redirect(url_for('error', flag = flag))
-                else:
-                    return redirect(url_for('error', flag = flag))
-    return redirect(url_for('error', flag = 2))
+            if ans <= 2: return redirect(url_for('error', flag = ans))
+            elif ans == 3: return redirect(url_for('index'))
+            elif ans > 3: return redirect(url_for('disc', total = ans))
 
 if __name__ == "__main__":
     index()

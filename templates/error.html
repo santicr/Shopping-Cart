@@ -6,11 +6,11 @@
     </head>
     <body>
         <h2>Error, NO SE PUDO HACER LA OPERACION</h2>
-        {% if flag == 1 %}  
+        {% if flag == 2 %}  
             <p>Saldo insuficiente</p>
         {% elif flag == 0 %}
             <p>Datos de tarjeta de crédito no válidas</p>
-        {% elif flag == 2 %}
+        {% elif flag == 1 %}
             <p>Error, la cantidad de los productos a comprar es mayor a la disponible</p>
             <p>Elimina los productos que tienes en el carrito</p>
         {% endif %}

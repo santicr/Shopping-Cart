@@ -37,3 +37,15 @@ def deleteTable(name):
     conn.execute(f"DROP TABLE {name}")
     conn.commit()
     conn.close()
+
+def insertCreditCard():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query1 = f"""
+    INSERT INTO UserCard
+    (Name, LastName1, LastName2, CCNum, CCV, Balance)
+    Values ('Santiago', 'Caicedo', 'Rojas', '012345678901234', '783', 1000000)
+    """
+    cursor.execute(query1)
+    conn.commit()
+    conn.close()
