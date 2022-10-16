@@ -52,3 +52,20 @@ def itemsToShow(itemId, quant2):
         ans = quant - quant2
     conn.close()
     return ans
+    
+"""
+Function to verify if data given by admin is valid
+Input: Name, quantity, price and description of a product
+Output: Valid (4) or not valid (0, 1, 2, 3)
+"""
+def verifyItemInsert(data):
+    ans = 4
+    if len(data[0]) < 5:
+        ans = 0
+    elif data[1] <= 0:
+        ans = 1
+    elif data[2] < 500:
+        ans = 2
+    elif len(data[4]) < 5:
+        ans = 3
+    return ans

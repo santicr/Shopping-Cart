@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import uuid
 from controller_cart import deleteCart, readCartItems
 
 DB_PATH = "/Users/santicr/Desktop/Github/Shopping-Cart/items.db"
@@ -62,6 +63,7 @@ def payFunc(user, ccnum, total):
     """
     lst1 = list(cursor.execute(query4))
     lst1 = list(map(list, lst1))
+    reference = str(uuid.uuid4())
 
     for el in lst1:
         itid = el[1]
@@ -80,8 +82,8 @@ def payFunc(user, ccnum, total):
         WHERE Id = {itid} 
         """
         query7 = f"""
-        INSERT INTO Bill (User, Item, Quantity)
-        VALUES ('{user}', {itid}, {cant1})
+        INSERT INTO Bill (User, Item, Quantity, Reference, Total)
+        VALUES ('{user}', {itid}, {cant1}, '{reference}', 0)
         """
         cursor.execute(query6)
         cursor.execute(query7)
@@ -102,7 +104,13 @@ def payFunc(user, ccnum, total):
     SET Balance = {lst[0][0] - total}
     WHERE CCnum = '{ccnum}'
     """
+    query4 = f"""
+    UPDATE Bill
+    SET Total = {total}
+    WHERE Reference = '{reference}'
+    """
     cursor.execute(query3)
+    cursor.execute(query4)
     conn.commit()
     conn.close()
     return ans

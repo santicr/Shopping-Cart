@@ -24,24 +24,47 @@
                         <button type="submit" class="btn btn-danger">Registrarse</button>
                     </a>
                 {% elif flag == 1 %}
-                    <span class="navbar-text">Bienvenido {{ user }} {% if amount > 0 %} {{ amount }} {% endif %}</span>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{{ url_for('searchReference') }}">
+                                Buscar pago referencia
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{{ url_for('transaction') }}">
+                                Consultar compras
+                            </a>
+                        </li>
+                    </ul>
+                    <span class="navbar-text">
+                        Bienvenido {{ user }} {% if amount > 0 %} {{ amount }} {% endif %}
+                    </span>
                     <a href="{{ url_for('cart') }}">
                         <img src="/static/cart.png" style="width: 2.5rem;">
                     </a>
+                    <a href="{{ url_for('references') }}">
+                        <button type="submit" class="btn btn-success">Referencias</button>
+                    </a>
+                    &nbsp&nbsp
                     <form action="{{ (url_for('logout')) }}">
                         <button type="submit" class="btn btn-danger">Cerrar Sesión</button>
                     </form>
                 {% elif flag == 2 %}
                     <span class="navbar-text">Bienvenido {{ admin }}</span>
+                    &nbsp&nbsp
                     <form action="{{ (url_for('admin')) }}">
                         <button type="submit" class="btn btn-light">Agregar producto</button>
                     </form>
+                    &nbsp&nbsp
                     <form action="{{ (url_for('logout')) }}">
                         <button type="submit" class="btn btn-danger">Cerrar Sesión</button>
                     </form>
                 {% endif %}
             </div>
         </nav>
+        <center><h2>Afrodita accesorios</h2></center>
         <div class="container">
 			<div class="row">
 		        {% for row in data %}

@@ -74,30 +74,33 @@ def index():
     elif "admin" in session:
         admin = session["admin"]
         flag = 2
-    print(rows[0])
     return render_template('index.html', data = rows, user = user, flag = flag, admin = admin, amount = amount)
+
+@app.route('/error/<int:flag>/<int:ans>')
+def error(flag, ans):
+    if "user" in session or "admin" in session:
+        return render_template('error.html', flag = flag, ans = ans)
 
 @app.route('/admin', methods = ['POST', 'GET'])
 def admin():
-    if request.method == 'POST':
-        name = request.form['name']
-        quant = request.form['quant']
-        price = request.form['price']
-        desc = request.form['desc']
-        file = request.files['file']
-        filename = secure_filename(file.filename)
-        data = [name, quant, price, 0, desc, 'static/' + file.filename]
-        file.save(os.path.join(app.config['UPLOAD FOLDER'], filename))
-        c.insertItem(data)
-        return redirect(url_for('index'))
     if "admin" in session:
+        if request.method == 'POST':
+            name = request.form['name']
+            quant = request.form['quant']
+            price = request.form['price']
+            desc = request.form['desc']
+            file = request.files['file']
+            filename = secure_filename(file.filename)
+            data = [name, int(quant), float(price), 0, desc, 'static/' + file.filename]
+            file.save(os.path.join(app.config['UPLOAD FOLDER'], filename))
+            ans = c.verifyItemInsert(data)
+            if ans == 4:
+                c.insertItem(data)
+            else:
+                return redirect(url_for('error', ans = ans, flag = 4))
+            return redirect(url_for('index'))
         return render_template('admin.html')
     return redirect(url_for('index'))
-
-@app.route('/error/<int:flag>')
-def error(flag):
-    if "user" in session:
-        return render_template('error.html', flag = flag)
 
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
@@ -186,9 +189,36 @@ def payProcess():
             data = [name, lname1, lname2, ccnum, ccv]
             ans = c.payment(data, user)
 
-            if ans <= 2: return redirect(url_for('error', flag = ans))
+            if ans <= 2: return redirect(url_for('error', flag = ans, ans = 10))
             elif ans == 3: return redirect(url_for('index'))
             elif ans > 3: return redirect(url_for('disc', total = ans))
+
+@app.route('/references')
+def references():
+    if 'user' in session:
+        user = session['user']
+        references = c.getReferences(user)
+        return render_template('references.html', user = user, references = references)
+    return redirect(url_for('index'))
+
+@app.route('/search', methods = ['POST', 'GET'])
+def searchReference():
+    if 'user' in session:
+        user = session['user']
+        products = []
+        if request.method == 'POST':
+            ref = request.form['ref']
+            products = c.searchReference(ref)
+        return render_template('searchref.html', products = products)
+    return redirect(url_for('index'))
+
+@app.route('/transaction', methods = ['POST', 'GET'])
+def transaction():
+    if 'user' in session:
+        user = session['user']
+        data = c.productsBought(user)
+        return render_template('transaction.html', data = data)
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     index()

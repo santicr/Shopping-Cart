@@ -1,4 +1,5 @@
 import sqlite3
+from controller_item import readItemById
 
 DB_PATH = "/Users/santicr/Desktop/Github/Shopping-Cart/items.db"
 
@@ -19,7 +20,7 @@ def createTable():
     query5 = """
     CREATE TABLE Bill (
         Id INTEGER PRIMARY KEY AUTOINCREMENT,
-        User TEXT, Item INT, Quantity INT,
+        User TEXT, Item INT, Quantity INT, Reference TEXT, Total REAL,
         FOREIGN KEY(User) REFERENCES User(Name),
         FOREIGN KEY(Item) REFERENCES Item(Id)
         )
@@ -49,3 +50,55 @@ def insertCreditCard():
     cursor.execute(query1)
     conn.commit()
     conn.close()
+
+def getReferences(user):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query1 = f"""
+    SELECT Reference
+    FROM Bill
+    WHERE User = '{user}'
+    GROUP BY User, Reference
+    ORDER BY Id DESC
+    """
+    lst = []
+    for l in list(cursor.execute(query1)):
+        lst.append(l[0])
+    conn.close()
+    return lst
+
+"""
+Function to search a buy reference
+Input: The reference
+Output: Name and quantity of each product bought with the reference
+"""
+def searchReference(ref):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query1 = f"""
+    SELECT Item, Quantity, Total
+    FROM Bill
+    WHERE Reference = '{ref}'
+    """
+    if len(ref) == 0:
+        return "No ingresaste nada, intenta de nuevo"
+    lst = list(cursor.execute(query1))
+    if not len(lst):
+        return "La referencia no existe, intenta de nuevo"
+    data = []
+    for el in lst:
+        temp = readItemById(el[0])
+        data.append([temp[0][1], el[1], temp[0][3], el[2]])
+    return data
+
+def productsBought(user):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query1 = f"""
+    SELECT Name, Bill.Quantity
+    FROM Bill JOIN Item ON(Bill.Item = Item.Id)
+    ORDER BY Bill.Id DESC LIMIT 10
+    """
+    lst = list(cursor.execute(query1))
+    conn.close()
+    return lst

@@ -13,6 +13,16 @@
         {% elif flag == 1 %}
             <p>Error, la cantidad de los productos a comprar es mayor a la disponible</p>
             <p>Elimina los productos que tienes en el carrito</p>
+        {% elif flag == 4 %}
+            {% if ans == 0 %}
+                <p>El nombre del producto no cumple con los caracteres minimos</p>
+            {% elif ans == 1 %}
+                <p>La cantidad del producto no es válida</p>
+            {% elif ans == 2 %}
+                <p>El precio no es válido, debe ser mayor o igual a 500 pesos</p>
+            {% elif ans == 3 %}
+                <p>La descripción es muy corta</p>
+            {% endif %}
         {% endif %}
         <a href="{{ url_for('index') }}">Regresar al index</a>
     </body>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <title>Referencias de pago</title>
+    </head>
+    <body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <a href = "{{ url_for('index') }}">
+            Regresar al index
+        </a>
+        <div class="container">
+            <div class="row">
+                <div class="col-4">
+                    <form method="POST" action="{{ url_for('searchReference') }}">
+                        <div class="mb-3">
+                            <label for="ref" class="form-label">Referencia</label>
+                            <input type="text" class="form-control" name="ref">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Buscar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% if products|length %}
+            {% if products[0]|length > 1 %}
+                {% for p in products %}
+                        <h4>Nombre del producto: {{ p[0] }}</h4>
+                        <h4>Cantidad comprada: {{ p[1] }}</h4>
+                        <h4>Valor del producto: {{ p[2] }}</h4>
+                {% endfor %}
+                    <h4>Total pagado incluido los descuentos: </h4>
+                    <h4>{{ products[0][3] }}</h4>
+            {% else %}
+                <p>{{ products }}</p>
+            {% endif %}
+        {% endif %}
+    </body>
+</html>
