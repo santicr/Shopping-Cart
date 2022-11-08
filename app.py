@@ -1,12 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.utils import secure_filename
 import os
-import sys
 import requests
-
-sys.path.append('controller')
-
-import c
 
 UPLOAD_FOLDER = 'static'
 
