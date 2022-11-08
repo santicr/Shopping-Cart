@@ -1,8 +1,17 @@
+from fastapi import APIRouter
 import sqlite3
+import sys
+sys.path.append('/Users/santicr/Desktop/Github/Shopping-Cart/controller/models')
+from models import CartItem, CartItemUpdate
 
 DB_PATH = "/Users/santicr/Desktop/Github/Shopping-Cart/items.db"
 
-def readCart(user):
+app = APIRouter(
+    tags = ["cart"]
+)
+
+@app.get("/api/cart/user")
+def fetch_cart_user(user: str):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     query1 = f"SELECT * FROM Cart WHERE User = '{user}'"
@@ -11,43 +20,71 @@ def readCart(user):
     conn.close()
     return lst
 
-def insertCart(userId, itemId):
+@app.post("/api/cart/item")
+def register_cart_item(cart_item: CartItem):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    query1 = f"INSERT INTO Cart VALUES('{userId}', {itemId}, 1)"
-    query2 = f"SELECT * FROM Cart WHERE User = '{userId}' AND ItemId = {itemId}"
-    rows = cursor.execute(query2)
-    lst = list(rows)
-    if not len(lst):
-        cursor.execute(query1)
-    else:
-        query3 = f"""
-        UPDATE Cart SET Quantity = {lst[0][2] + 1}
-        WHERE User = '{userId}' AND ItemId = {itemId}
-        """
-        cursor.execute(query3)
+    query1 = f"""
+    INSERT INTO Cart VALUES('{cart_item.user_name}', {cart_item.item_id}, 1)
+    """
+    cursor.execute(query1)
     conn.commit()
+    cursor.close()
     conn.close()
+    return {cart_item.user_name: cart_item.item_id}
+
+@app.delete('/api/cart/user')
+def delete_cart_user(user: str):
+    conn = sqlite3.connect(DB_PATH)
+    query1 = f"""
+    DELETE FROM Cart WHERE User = '{user}'
+    """
+    cursor = conn.cursor()
+    cursor.execute(query1)
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"Cart deleted": user}
+
+@app.put("/api/cart/item")
+def update_cart_item(new_item_cart: CartItemUpdate):
+    conn = sqlite3.connect(DB_PATH)
+    query1 = f"""
+    UPDATE Cart SET Quantity = {new_item_cart.new_quant}
+    WHERE User = '{new_item_cart.user_name}' AND ItemId = {new_item_cart.item_id}
+    """
+    cursor = conn.cursor()
+    cursor.execute(query1)
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {new_item_cart.item_id: new_item_cart.new_quant}
 
 """
 Function to delete one element of a cart from an user
 Input: Item id and user
 Output: None
 """
-def deleteCartItem(idIt, user):
+@app.get("/api/cart/item")
+def fetch_cart_item(cart_item: CartItem):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    query1 = f"SELECT * FROM Cart WHERE ItemId = {idIt} AND User = '{user}'"
-    query2 = f"DELETE FROM Cart WHERE ItemId = {idIt} AND User = '{user}'"
+    query1 = f"SELECT * FROM Cart WHERE ItemId = {cart_item.item_id} AND User = '{cart_item.user_name}'"
     row = list(cursor.execute(query1))
-    cant = row[0][2]
-    query3 = f"UPDATE Cart SET Quantity = {cant - 1} WHERE User = '{user}' AND ItemId = {idIt}"
-    if cant == 1:
-        cursor.execute(query2)
-    elif cant > 1:
-        cursor.execute(query3)
-    conn.commit()
+    cursor.close()
     conn.close()
+    return row
+
+@app.delete("/api/cart/item")
+def delete_cart_item(cart_item: CartItem):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query1 = f"DELETE FROM Cart WHERE ItemId = {cart_item.item_id} AND User = '{cart_item.user_name}'"
+    cursor.execute(query1)
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"Deleted": [cart_item.user_name, cart_item.item_id]}
 
 """
 Function to delete all from Cart table where user is matched
@@ -66,7 +103,8 @@ Function to read all items from an user cart
 Input: User
 Output: Rows with all information about an item of a cart
 """
-def readCartItems(user):
+@app.get("/api/cart/items/{user}")
+def fetch_cart_items(user: str):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     query1 = f"""
@@ -83,18 +121,19 @@ Verify if I can add an item to an user cart
 Input: Item
 Output: True if I can add the item to an user cart, otherwise, false 
 """
-def verifyCartAdd(itemId):
+@app.get("/api/cart/verify/{item_id}")
+def fetch_verify_cart(item_id: int):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     ans = True
     query1 = f"""
     SELECT Quantity
     FROM Item
-    WHERE Id = '{itemId}'
+    WHERE Id = '{item_id}'
     """
     lst = list(cursor.execute(query1))
     quant = int(lst[0][0])
-    if quant == 0:
-        ans = False
+    ans = False if quant <= 0 else ans
+    cursor.close()
     conn.close()
     return ans

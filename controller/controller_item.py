@@ -1,21 +1,61 @@
 import sqlite3
+from fastapi import APIRouter
+import sys
+sys.path.append('/Users/santicr/Desktop/Github/Shopping-Cart/controller/models')
+from models import Item
 
 DB_PATH = '/Users/santicr/Desktop/Github/Shopping-Cart/items.db'
+
+app = APIRouter(
+    tags = ["items"],
+)
+
+@app.get("/api/item/quantity/{item_id}")
+def fetch_item_quantity(item_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query1 = f"""
+    SELECT Quantity
+    FROM Item
+    WHERE Id = {item_id}
+    """
+    lst = list(cursor.execute(query1))
+    cursor.close()
+    conn.close()
+    return lst[0][0]
+
+@app.put("/api/item/quantity/{item_id}")
+def update_item_quantity(item_id: int, new_quantity: float):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query1 = f"""
+    UPDATE Item
+    SET Quantity = {new_quantity}
+    WHERE Id = {item_id}
+    """
+    cursor.execute(query1)
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {item_id: new_quantity}
 
 """
 Function to insert a row to Item table
 INPUT: Row
 """
-def insertItem(data):
+@app.post("/api/items")
+async def register_item(item: Item):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     query1 = f"""
     INSERT INTO Item (Name, Quantity, Price, Sold, Description, URL)
-    VALUES('{data[0]}', {data[1]}, {data[2]}, {data[3]}, '{data[4]}', '{data[5]}')
+    VALUES('{item.name}', {item.quant}, {item.price}, {item.sold}, '{item.desc}', '{item.file_upload}')
     """
     cursor.execute(query1)
     conn.commit()
+    cursor.close()
     conn.close()
+    return {item.name: item.quant}
 
 """
 Function to read an item.
@@ -34,22 +74,25 @@ def readItemById(idIt):
 Function to read all rows from Item table.
 Output: All rows of Item table.
 """
-def readItems():
+@app.get("/api/items")
+def fetch_items():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     query1 = "SELECT * FROM item"
     rows = list(cursor.execute(query1))
     return rows
 
-def itemsToShow(itemId, quant2):
+@app.get("/api/items/user")
+def fetch_item_user(item_id: int, quant2: int):
     ans = quant2
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    query1 = f"SELECT Quantity FROM Item WHERE Id = {itemId}"
+    query1 = f"SELECT Quantity FROM Item WHERE Id = {item_id}"
     lst = list(cursor.execute(query1))
     if len(lst) > 0:
         quant = int(lst[0][0])
         ans = quant - quant2
+    cursor.close()
     conn.close()
     return ans
     
@@ -58,14 +101,15 @@ Function to verify if data given by admin is valid
 Input: Name, quantity, price and description of a product
 Output: Valid (4) or not valid (0, 1, 2, 3)
 """
-def verifyItemInsert(data):
+@app.get("/api/items/verify/{name}/{quant}/{price}/{desc}")
+def fetch_verify_item_insert(name: str, quant: int, price: float, desc: str):
     ans = 4
-    if len(data[0]) < 5:
+    if len(name) < 5:
         ans = 0
-    elif data[1] <= 0:
+    elif quant <= 0:
         ans = 1
-    elif data[2] < 500:
+    elif price < 500:
         ans = 2
-    elif len(data[4]) < 5:
+    elif len(desc) < 5:
         ans = 3
     return ans

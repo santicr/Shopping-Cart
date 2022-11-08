@@ -1,7 +1,15 @@
 import sqlite3
 from controller_item import readItemById
+import sys
+sys.path.append('/Users/santicr/Desktop/Github/Shopping-Cart/controller/models')
+from models import UserName, Reference
+from fastapi import APIRouter
 
 DB_PATH = "/Users/santicr/Desktop/Github/Shopping-Cart/items.db"
+
+app = APIRouter(
+    tags = ["Auxiliar db funcs"]
+)
 
 """
 Function to create all tables for db items
@@ -51,19 +59,21 @@ def insertCreditCard():
     conn.commit()
     conn.close()
 
-def getReferences(user):
+@app.get('/api/auxiliaries/ref')
+def fetch_references(user_name: UserName):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     query1 = f"""
     SELECT Reference
     FROM Bill
-    WHERE User = '{user}'
+    WHERE User = '{user_name.user_name}'
     GROUP BY User, Reference
     ORDER BY Id DESC
     """
     lst = []
     for l in list(cursor.execute(query1)):
         lst.append(l[0])
+    cursor.close()
     conn.close()
     return lst
 
@@ -72,15 +82,16 @@ Function to search a buy reference
 Input: The reference
 Output: Name and quantity of each product bought with the reference
 """
-def searchReference(ref):
+@app.get('/api/auxiliaries/search')
+def fetch_search_reference(ref: Reference):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     query1 = f"""
     SELECT Item, Quantity, Total
     FROM Bill
-    WHERE Reference = '{ref}'
+    WHERE Reference = '{ref.reference}'
     """
-    if len(ref) == 0:
+    if len(ref.reference) == 0:
         return "No ingresaste nada, intenta de nuevo"
     lst = list(cursor.execute(query1))
     if not len(lst):
@@ -91,12 +102,14 @@ def searchReference(ref):
         data.append([temp[0][1], el[1], temp[0][3], el[2]])
     return data
 
-def productsBought(user):
+@app.get('/api/auxiliaries/bought')
+def fetch_products_bought(user_name: UserName):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     query1 = f"""
     SELECT Name, Bill.Quantity
     FROM Bill JOIN Item ON(Bill.Item = Item.Id)
+    WHERE User = '{user_name.user_name}'
     ORDER BY Bill.Id DESC LIMIT 10
     """
     lst = list(cursor.execute(query1))

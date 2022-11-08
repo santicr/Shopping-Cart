@@ -46,7 +46,7 @@
 		<h2>Bienvenido a tu carrito de compras {{ user }}!</h2>
         {% if total > 0 %}
 		    {% for row in lst %}
-            <form action="{{ url_for('remove_item', idIt = row['idIt']) }}">
+            <form action="{{ url_for('remove_item', item_id = row['item_id']) }}">
                 <h4>
                     {{ row['item'] }} {{ row['cant'] }} {{ row['total'] }}
                         <button type="submit" class="btn btn-warning">Remover uno</button>

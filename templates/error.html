@@ -23,6 +23,12 @@
             {% elif ans == 3 %}
                 <p>La descripción es muy corta</p>
             {% endif %}
+        {% elif flag == 5 %}
+            <p>No se pudo realizar la operación</p>
+            <p>Usuario contraseña incorrectos</p>
+        {% elif flag == 6 %}
+            <p>No se puedo realizar la operación</p>
+            <p>Usuario ya existente o contraseña invalida</p>
         {% endif %}
         <a href="{{ url_for('index') }}">Regresar al index</a>
     </body>
