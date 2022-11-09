@@ -43,7 +43,7 @@ INPUT: Table name
 """
 def deleteTable(name):
     conn = sqlite3.connect(DB_PATH)
-    conn.execute(f"DROP TABLE {name}")
+    conn.execute(f"DELETE FROM {name}")
     conn.commit()
     conn.close()
 
