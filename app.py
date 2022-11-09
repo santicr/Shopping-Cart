@@ -79,6 +79,8 @@ def cart():
 @app.route('/')
 def index():
     rows = requests.get('http://127.0.0.1:8000/api/items').json()
+    print("auiiiii")
+    print(rows)
     flag = 0
     amount = 0
     user, admin = "", ""

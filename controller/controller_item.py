@@ -1,10 +1,8 @@
-import sqlite3
+import psycopg2
 from fastapi import APIRouter
 import sys
 sys.path.append('/Users/santicr/Desktop/Github/Shopping-Cart/controller/models')
 from models import Item
-
-DB_PATH = '/Users/santicr/Desktop/Github/Shopping-Cart/items.db'
 
 app = APIRouter(
     tags = ["items"],
@@ -12,7 +10,12 @@ app = APIRouter(
 
 @app.get("/api/item/quantity/{item_id}")
 def fetch_item_quantity(item_id: int):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     SELECT Quantity
@@ -26,7 +29,12 @@ def fetch_item_quantity(item_id: int):
 
 @app.put("/api/item/quantity/{item_id}")
 def update_item_quantity(item_id: int, new_quantity: float):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     UPDATE Item
@@ -44,8 +52,13 @@ Function to insert a row to Item table
 INPUT: Row
 """
 @app.post("/api/items")
-async def register_item(item: Item):
-    conn = sqlite3.connect(DB_PATH)
+def register_item(item: Item):
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     INSERT INTO Item (Name, Quantity, Price, Sold, Description, URL)
@@ -63,7 +76,12 @@ Input: Item id.
 Output: Row with Item info.
 """
 def readItemById(idIt):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"SELECT * FROM Item where id = {idIt}"
     row = list(cursor.execute(query1))
@@ -76,16 +94,29 @@ Output: All rows of Item table.
 """
 @app.get("/api/items")
 def fetch_items():
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = "SELECT * FROM item"
-    rows = list(cursor.execute(query1))
+    cursor.execute(query1)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
     return rows
 
 @app.get("/api/items/user")
 def fetch_item_user(item_id: int, quant2: int):
     ans = quant2
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"SELECT Quantity FROM Item WHERE Id = {item_id}"
     lst = list(cursor.execute(query1))

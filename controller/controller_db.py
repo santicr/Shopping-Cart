@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 from controller_item import readItemById
 import sys
 sys.path.append('/Users/santicr/Desktop/Github/Shopping-Cart/controller/models')
@@ -15,7 +15,12 @@ app = APIRouter(
 Function to create all tables for db items
 """
 def createTable():
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = 'CREATE TABLE Item(Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Quantity INT, Price REAL, Sold INT, Description TEXT, URL TEXT)'
     query2 = """
@@ -42,13 +47,23 @@ Function to delete a table.
 INPUT: Table name
 """
 def deleteTable(name):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     conn.execute(f"DELETE FROM {name}")
     conn.commit()
     conn.close()
 
 def insertCreditCard():
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     INSERT INTO UserCard
@@ -61,13 +76,18 @@ def insertCreditCard():
 
 @app.get('/api/auxiliaries/ref')
 def fetch_references(user_name: UserName):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     SELECT Reference
     FROM Bill
-    WHERE User = '{user_name.user_name}'
-    GROUP BY User, Reference
+    WHERE user_web = '{user_name.user_name}'
+    GROUP BY user_web, Reference
     ORDER BY Id DESC
     """
     lst = []
@@ -84,7 +104,12 @@ Output: Name and quantity of each product bought with the reference
 """
 @app.get('/api/auxiliaries/search')
 def fetch_search_reference(ref: Reference):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     SELECT Item, Quantity, Total
@@ -104,7 +129,12 @@ def fetch_search_reference(ref: Reference):
 
 @app.get('/api/auxiliaries/bought')
 def fetch_products_bought(user_name: UserName):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     SELECT Name, Bill.Quantity

@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 from datetime import datetime
 import uuid
 import sys
@@ -7,8 +7,6 @@ from models import PayData
 from controller_item import fetch_item_quantity, update_item_quantity
 from controller_cart import delete_cart_user, fetch_cart_items, fetch_cart_user
 from fastapi import APIRouter
-
-DB_PATH = "/Users/santicr/Desktop/Github/Shopping-Cart/items.db"
 
 app = APIRouter(
     tags = ["Pay"]
@@ -24,7 +22,12 @@ Input: Id of the product and product quantity in cart.
 """
 @app.get("/api/payments/verify/{item_id}/{quant}")
 async def verify_item_quant(item_id: int, quant: int):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     SELECT Quantity
@@ -67,7 +70,12 @@ Third: Insert into Bill table, all information about the bill of the user.
 """
 @app.get("/api/payments/process/{user}/{ccnum}/{total}")
 def fetch_payment_process(user: str, ccnum: str, total: float):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     now = datetime.now()
     hour = now.strftime("%H")
     cursor = conn.cursor()
@@ -82,7 +90,7 @@ def fetch_payment_process(user: str, ccnum: str, total: float):
         new_cant = cant2 - cant1
         update_item_quantity(item_id, new_cant)
         query7 = f"""
-        INSERT INTO Bill (User, Item, Quantity, Reference, Total)
+        INSERT INTO Bill (user_web, Item, Quantity, Reference, Total)
         VALUES ('{user}', {item_id}, {cant1}, '{reference}', 0)
         """
         cursor.execute(query7)
@@ -93,7 +101,7 @@ def fetch_payment_process(user: str, ccnum: str, total: float):
     WHERE CCnum = '{ccnum}'
     """
     query1 = f"""
-    DELETE FROM Cart WHERE User = '{user}'
+    DELETE FROM Cart WHERE user_web = '{user}'
     """
     cursor.execute(query1)
     lst = list(cursor.execute(query2))
@@ -122,7 +130,12 @@ Output: Balance of that creditcard
 """
 @app.get("/api/payments/verify/card")
 def verify_card(name: str, lastname1: str, lastname2: str, ccnum: str, ccv: str):
-    conn = sqlite3.connect(DB_PATH)
+    conn = psycopg2.connect(
+        host = "localhost",
+        database = "items_db",
+        user = 'postgres',
+        password = 'admin'
+    )
     cursor = conn.cursor()
     query1 = f"""
     SELECT Balance
@@ -151,11 +164,6 @@ def pay(pay_data: PayData):
     card_flag, balance = verify_card(pay_data.name, pay_data.lname1, pay_data.lname2, pay_data.ccnum, pay_data.ccv)
     products = fetch_cart_items(pay_data.user_name)
     total, flag_pay = verify_products(products)
-    for i in range(5):
-        print()
-    print("aqui")
-    for i in range(5):
-        print()
     
     if card_flag:
         ans = 1
