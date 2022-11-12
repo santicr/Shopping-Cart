@@ -30,8 +30,6 @@ def test_process(reference, selector):
     login = driver.find_element(by=By.CSS_SELECTOR, value="body > nav > div > a:nth-child(2) > button")
     login.click()
 
-    time.sleep(2)
-
     name_input = driver.find_element(by=By.CSS_SELECTOR, value ="body > div > div > div > form > div:nth-child(1) > input")
     name_input.click()
     name_input.send_keys("santicr21")
@@ -42,8 +40,6 @@ def test_process(reference, selector):
 
     login_but = driver.find_element(by=By.CSS_SELECTOR, value = 'body > div > div > div > form > button')
     login_but.click()
-
-    time.sleep(2)
 
     # Click and input references process
     ref_but = driver.find_element(by=By.CSS_SELECTOR, value = 'body > nav > div > ul:nth-child(2) > li > a')
