@@ -50,7 +50,6 @@ def remove_item(item_id: int):
             elif quant > 1:
                 params["new_quant"] = quant - 1
                 res = requests.put(f'http://127.0.0.1:8000/api/cart/item', json = params)
-                print(res.json())
         return redirect(url_for('cart'))
     return redirect(url_for('index'))
 
@@ -79,8 +78,6 @@ def cart():
 @app.route('/')
 def index():
     rows = requests.get('http://127.0.0.1:8000/api/items').json()
-    print("auiiiii")
-    print(rows)
     flag = 0
     amount = 0
     user, admin = "", ""
@@ -109,10 +106,9 @@ def index():
         flag = 2
     return render_template('index.html', data = rows, user = user, flag = flag, admin = admin, amount = amount)
 
-@app.route('/error/<int:flag>/<int:ans>')
+@app.route('/error/<flag>/<ans>')
 def error(flag, ans):
-    if "user" in session or "admin" in session:
-        return render_template('error.html', flag = flag, ans = ans)
+    return render_template('error.html', flag = flag, ans = ans)
 
 @app.route('/admin', methods = ['POST', 'GET'])
 def admin():
@@ -126,10 +122,10 @@ def admin():
             filename = secure_filename(file.filename)
             sold = 0
             file_upload = str('static/' + file.filename)
-            file.save(os.path.join(app.config['UPLOAD FOLDER'], filename))
             fetch_verify_item_insert_res = requests.get(f"http://127.0.0.1:8000/api/items/verify/{name}/{quant}/{price}/{desc}")
             ans = fetch_verify_item_insert_res.json()
             if ans == 4:
+                file.save(os.path.join(app.config['UPLOAD FOLDER'], filename))
                 payload = {
                     'name': name,
                     'quant': quant,
@@ -183,13 +179,16 @@ def register():
         user = request.form['user']
         pwd1 = request.form['passw1']
         pwd2 = request.form['passw2']
+        params = {'password': pwd1}
+        valid_pass = requests.get('http://127.0.0.1:8000/api/users/verify', params = params).json()
         params = {'user': user}
-        if pwd1 == pwd2 and requests.get('http://127.0.0.1:8000/api/users/exist', params = params).json():
+        valid_user = requests.get('http://127.0.0.1:8000/api/users/exist', params = params).json()
+        if pwd1 == pwd2 and valid_user and valid_pass:
             params = {
                 'name': user,
                 'passw': pwd1
             }
-            res = requests.post('http://127.0.0.1:8000/api/users/user', json = params)
+            requests.post('http://127.0.0.1:8000/api/users/user', json = params)
             return redirect(url_for('index'))
         return redirect(url_for('error', flag = 6, ans = -1))
     return render_template('register.html')
@@ -245,7 +244,6 @@ def payProcess():
                 'ccv': ccv
             }
             ans = requests.get('http://127.0.0.1:8000/api/payments/pay', json = params).json()
-            print(ans)
             if ans <= 2: return redirect(url_for('error', flag = ans, ans = 10))
             elif ans == 3: return redirect(url_for('index'))
             elif ans > 3: return redirect(url_for('disc', total = ans))
@@ -254,7 +252,10 @@ def payProcess():
 def references():
     if 'user' in session:
         user = session['user']
-        references = requests.get('http://127.0.0.1:8000/api/auxiliaries/ref', json = {'user_name': user}).json()
+        params = {
+            'user_name': user
+        }
+        references = requests.get('http://127.0.0.1:8000/api/auxiliaries/ref', json = params).json()
         return render_template('references.html', user = user, references = references)
     return redirect(url_for('index'))
 
@@ -265,7 +266,10 @@ def searchReference():
         products = []
         if request.method == 'POST':
             ref = request.form['ref']
-            products = requests.get('http://127.0.0.1:8000/api/auxiliaries/search', json = {'reference': ref}).json()
+            params = {
+                'reference': ref
+            }
+            products = requests.get('http://127.0.0.1:8000/api/auxiliaries/search', json = params).json()
         return render_template('searchref.html', products = products)
     return redirect(url_for('index'))
 
@@ -273,7 +277,10 @@ def searchReference():
 def transaction():
     if 'user' in session:
         user = session['user']
-        data = requests.get('http://127.0.0.1:8000/api/auxiliaries/bought', json = {'user_name': user}).json()
+        params = {
+            'user_name': user
+        }
+        data = requests.get('http://127.0.0.1:8000/api/auxiliaries/bought', json = params).json()
         return render_template('transaction.html', data = data)
     return redirect(url_for('index'))
 

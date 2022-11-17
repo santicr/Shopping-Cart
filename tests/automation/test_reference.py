@@ -75,6 +75,7 @@ class Test2(unittest.TestCase):
         self.reference = "3ad95419-b72e-4c2a-8f3d-6de8e2f3a9b0"
         self.num_rows = fetch_reference(self.reference)
         self.selector = 'body > p'
+        
         self.assertEqual(self.num_rows, 0)
 
     def test(self):
@@ -90,6 +91,7 @@ class Test3(unittest.TestCase):
         self.reference = "3ad95419-b72e-4c2a-8f3d-6de8e2f3a9b1"
         self.selector = 'body > h4:nth-child(4)'
         self.num_rows = fetch_reference(self.reference)
+
         self.assertEqual(self.num_rows, 1)
 
     def test(self):

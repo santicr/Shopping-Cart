@@ -1,6 +1,6 @@
 import sys
 sys.path.append('/Users/santicr/Desktop/Github/Shopping-Cart/controller')
-from c import *
+from controller_pay import fetch_payment_discount
 import unittest, sqlite3
 DB_PATH = '/Users/santicr/Desktop/Github/Shopping-Cart/items.db'
 
@@ -22,7 +22,7 @@ class Test1(unittest.TestCase):
         self.assertLessEqual(int(self.credit_card[0]) + int(self.credit_card[1]), 4)
 
     def test(self):
-        self.new_total = discount(self.credit_card, self.hour, self.total)[1]
+        self.new_total = fetch_payment_discount(self.credit_card, self.hour, self.total)[1]
         self.assertEqual(self.new_total, self.total - (self.total * int(self.hour) / 100))
     
     def tearDown(self) -> None:
@@ -49,7 +49,7 @@ class Test2(unittest.TestCase):
         self.assertGreater(int(self.credit_card[0]) + int(self.credit_card[-1]), 4)
     
     def test(self):
-        new_total = discount(self.credit_card, self.hour, self.total)[1]
+        new_total = fetch_payment_discount(self.credit_card, self.hour, self.total)[1]
         self.assertEqual(new_total, self.total - (self.total * 0.08))
     
     def tearDown(self) -> None:
@@ -75,7 +75,7 @@ class Test3(unittest.TestCase):
         self.assertGreater(int(self.credit_card[0]) + int(self.credit_card[-1]), 4)
     
     def test(self):
-        new_total = discount(self.credit_card, self.hour, self.total)[1]
+        new_total = fetch_payment_discount(self.credit_card, self.hour, self.total)[1]
         fp = self.total - (self.total * (int(self.hour) / 100))
         self.assertEqual(new_total, fp - fp * 0.08)
     
@@ -102,7 +102,7 @@ class Test4(unittest.TestCase):
         self.assertNotEqual(self.credit_card[-1], self.credit_card[0])
 
     def test(self):
-        new_total = discount(self.credit_card, self.hour, self.total)[1]
+        new_total = fetch_payment_discount(self.credit_card, self.hour, self.total)[1]
         self.assertEqual(new_total, self.total)
 
     def tearDown(self) -> None:

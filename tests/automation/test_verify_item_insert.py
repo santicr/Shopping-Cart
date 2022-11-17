@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 import chromedriver_autoinstaller
 import unittest, time, psycopg2
 
+chromedriver_autoinstaller.install()
+
 def get_items_length():
     conn = psycopg2.connect(
         user =  'postgres',
