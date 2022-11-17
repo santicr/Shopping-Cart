@@ -30,7 +30,7 @@ query2 = """
 """
 query3 = """
     CREATE TABLE UserCard(
-        id int PRIMARY KEY,
+        id serial PRIMARY KEY,
         name varchar (100) NOT NULL,
         lastname1 varchar (100) NOT NULL,
         lastname2 varchar (100) NOT NULL,
@@ -67,7 +67,7 @@ query6 = """
         PRIMARY KEY(user_web, ItemId)
     )
 """
-cur.execute(query6)
+cur.execute(query3)
 con.commit()
 cur.close()
 con.close()

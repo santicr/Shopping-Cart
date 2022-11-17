@@ -38,7 +38,7 @@ def createTable():
         FOREIGN KEY(Item) REFERENCES Item(Id)
         )
     """
-    cursor.execute(query5)
+    cursor.execute(query1)
     conn.commit()
     conn.close()
 
@@ -87,11 +87,12 @@ def fetch_references(user_name: UserName):
     SELECT Reference
     FROM Bill
     WHERE user_web = '{user_name.user_name}'
-    GROUP BY user_web, Reference
-    ORDER BY Id DESC
+    ORDER BY id DESC
     """
+    cursor.execute(query1)
+    rows = cursor.fetchall()
     lst = []
-    for l in list(cursor.execute(query1)):
+    for l in rows:
         lst.append(l[0])
     cursor.close()
     conn.close()
@@ -118,7 +119,8 @@ def fetch_search_reference(ref: Reference):
     """
     if len(ref.reference) == 0:
         return "No ingresaste nada, intenta de nuevo"
-    lst = list(cursor.execute(query1))
+    cursor.execute(query1)
+    lst = cursor.fetchall()
     if not len(lst):
         return "La referencia no existe, intenta de nuevo"
     data = []
@@ -139,9 +141,12 @@ def fetch_products_bought(user_name: UserName):
     query1 = f"""
     SELECT Name, Bill.Quantity
     FROM Bill JOIN Item ON(Bill.Item = Item.Id)
-    WHERE User = '{user_name.user_name}'
+    WHERE user_web = '{user_name.user_name}'
     ORDER BY Bill.Id DESC LIMIT 10
     """
-    lst = list(cursor.execute(query1))
+    cursor.execute(query1)
+    lst = cursor.fetchall()
+    print(lst)
+    cursor.close()
     conn.close()
     return lst

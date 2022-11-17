@@ -22,7 +22,6 @@ def fetch_cart_user(user: str):
     lst = cursor.fetchall()
     cursor.close()
     conn.close()
-    print(lst)
     return lst
 
 @app.post("/api/cart/item")
@@ -95,7 +94,8 @@ def fetch_cart_item(cart_item: CartItem):
     )
     cursor = conn.cursor()
     query1 = f"SELECT * FROM Cart WHERE ItemId = {cart_item.item_id} AND user_web = '{cart_item.user_name}'"
-    row = list(cursor.execute(query1))
+    cursor.execute(query1)
+    row = cursor.fetchall()
     cursor.close()
     conn.close()
     return row
@@ -151,8 +151,8 @@ def fetch_cart_items(user: str):
     SELECT Name, Cart.Quantity, Cart.Quantity * Price, ItemId
     FROM Cart INNER JOIN Item ON Id = ItemId WHERE user_web = '{user}'
     """
-    rows = cursor.execute(query1)
-    rows = list(rows)
+    cursor.execute(query1)
+    rows = cursor.fetchall()
     conn.close()
     return rows
 
@@ -176,7 +176,8 @@ def fetch_verify_cart(item_id: int):
     FROM Item
     WHERE Id = '{item_id}'
     """
-    lst = list(cursor.execute(query1))
+    cursor.execute(query1)
+    lst = cursor.fetchall()
     quant = int(lst[0][0])
     ans = False if quant <= 0 else ans
     cursor.close()

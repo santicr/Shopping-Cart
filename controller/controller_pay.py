@@ -21,7 +21,7 @@ Function to verify if a product in the cart has quantity <= actual quantity in d
 Input: Id of the product and product quantity in cart.
 """
 @app.get("/api/payments/verify/{item_id}/{quant}")
-async def verify_item_quant(item_id: int, quant: int):
+def verify_item_quant(item_id: int, quant: int):
     conn = psycopg2.connect(
         host = "localhost",
         database = "items_db",
@@ -34,12 +34,13 @@ async def verify_item_quant(item_id: int, quant: int):
     FROM Item
     WHERE Id = {item_id}
     """
-    lst = list(cursor.execute(query1))
+    cursor.execute(query1)
+    lst = cursor.fetchall()
     qItem = int(lst[0][0])
     ans = False if quant > qItem else True
     cursor.close()
     conn.close()
-    return {item_id: ans}
+    return ans
 
 """
 Function to apply discounts when paying
@@ -104,7 +105,8 @@ def fetch_payment_process(user: str, ccnum: str, total: float):
     DELETE FROM Cart WHERE user_web = '{user}'
     """
     cursor.execute(query1)
-    lst = list(cursor.execute(query2))
+    cursor.execute(query2)
+    lst = cursor.fetchall()
     ans, total = fetch_payment_discount(ccnum, hour, total)
     query3 = f"""
     UPDATE UserCard
@@ -143,35 +145,40 @@ def verify_card(name: str, lastname1: str, lastname2: str, ccnum: str, ccv: str)
     WHERE Name = '{name}' AND LastName1 = '{lastname1}'
     AND LastName2 = '{lastname2}' AND CCNum = '{ccnum}' AND CCV = '{ccv}'
     """
-    lst = list(cursor.execute(query1))
+    lst = cursor.execute(query1)
+    lst = cursor.fetchall()
     ans = (False, 0) if not len(lst) else (True, lst[0][0])
     return ans
 
 @app.get("/api/payments/verify/products")
-def verify_products(products: list):
+def verify_products(products: tuple):
     total = 0
     flag = True
     for p in products:
-        flag = verify_item_quant(p[3], p[1])
+        if not verify_item_quant(p[3], p[1]):
+            flag = False
         total += p[2]
     return (total, flag)
 
 @app.get("/api/payments/pay")
 def pay(pay_data: PayData):
-    ans = 0
-    total = 0
-    flag_pay = True
-    card_flag, balance = verify_card(pay_data.name, pay_data.lname1, pay_data.lname2, pay_data.ccnum, pay_data.ccv)
-    products = fetch_cart_items(pay_data.user_name)
-    total, flag_pay = verify_products(products)
-    
-    if card_flag:
-        ans = 1
-        if flag_pay:
-            ans = 2
-            if balance >= total:
-                ans = 3
-                res = fetch_payment_process(pay_data.user_name, pay_data.ccnum, total)
-                if res:
-                    ans = res
-    return ans
+    try:
+        ans = 0
+        total = 0
+        flag_pay = True
+        card_flag, balance = verify_card(pay_data.name, pay_data.lname1, pay_data.lname2, pay_data.ccnum, pay_data.ccv)
+        products = fetch_cart_items(pay_data.user_name)
+        total, flag_pay = verify_products(products)
+        
+        if card_flag:
+            ans = 1
+            if flag_pay:
+                ans = 2
+                if balance >= total:
+                    ans = 3
+                    res = fetch_payment_process(pay_data.user_name, pay_data.ccnum, float(total))
+                    if res:
+                        ans = res
+        return ans
+    except Exception as e:
+        print('Hubo un error: ', e)

@@ -29,7 +29,8 @@ def fetch_user(user: str):
     )
     cursor = conn.cursor()
     query1 = f"SELECT name FROM user_web WHERE name = '{user}'"
-    rows = cursor.execute(query1)
+    cursor.execute(query1)
+    rows = cursor.fetchall()
     ans = True if not len(list(rows)) else False
     cursor.close()
     conn.close()
@@ -40,7 +41,7 @@ Function to verify password security requirements
 Input: Password
 Output: True if password meets requirements, otherwise, false
 """
-@app.get("/api/users/verify/{password}")
+@app.get("/api/users/verify")
 def fetch_verify_user_pass(password: str):
     ans = False
     flag1, flag2 = False, False
@@ -56,7 +57,7 @@ def fetch_verify_user_pass(password: str):
     else:
         ans = False
     ans = True if flag1 and flag2 else ans
-    return {"Password": ans}
+    return ans
 
 """
 Function to verify if user and password are in db (also if user is admin or user)
@@ -74,9 +75,9 @@ def fetch_user_and_pass(user: str, passw: str):
     )
     cursor = conn.cursor()
     query1 = f"SELECT * FROM user_web WHERE name = '{user}' AND password = '{passw}'"
-    rows = cursor.execute(query1)
-    l = list(rows)
-    ans = 0 if len(l) == 0 else l[0][2] + 1
+    cursor.execute(query1)
+    rows = cursor.fetchall()
+    ans = 0 if len(rows) == 0 else rows[0][2] + 1
     cursor.close()
     conn.close()
     return ans
@@ -116,7 +117,8 @@ def fetch_user_address(user: str):
     )
     cursor = conn.cursor()
     query1 = f"SELECT Address, City FROM ClientAd WHERE user_web = '{user}'"
-    lst = list(cursor.execute(query1))
+    cursor.execute(query1)
+    lst = cursor.fetchall()
     cursor.close()
     conn.close()
     return lst

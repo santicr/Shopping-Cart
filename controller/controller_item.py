@@ -22,7 +22,8 @@ def fetch_item_quantity(item_id: int):
     FROM Item
     WHERE Id = {item_id}
     """
-    lst = list(cursor.execute(query1))
+    cursor.execute(query1)
+    lst = cursor.fetchall()
     cursor.close()
     conn.close()
     return lst[0][0]
@@ -84,7 +85,9 @@ def readItemById(idIt):
     )
     cursor = conn.cursor()
     query1 = f"SELECT * FROM Item where id = {idIt}"
-    row = list(cursor.execute(query1))
+    cursor.execute(query1)
+    row = cursor.fetchall()
+    cursor.close()
     conn.close()
     return row
 
@@ -119,7 +122,8 @@ def fetch_item_user(item_id: int, quant2: int):
     )
     cursor = conn.cursor()
     query1 = f"SELECT Quantity FROM Item WHERE Id = {item_id}"
-    lst = list(cursor.execute(query1))
+    cursor.execute(query1)
+    lst = cursor.fetchall()
     if len(lst) > 0:
         quant = int(lst[0][0])
         ans = quant - quant2
