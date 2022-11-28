@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.utils import secure_filename
 import os
 import requests
+from threading import Lock
 
 UPLOAD_FOLDER = 'static'
 
@@ -141,11 +142,14 @@ def admin():
         return render_template('admin.html')
     return redirect(url_for('index'))
 
+
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
     if 'user' in session or 'admin' in session:
         return redirect(url_for('index'))
     if request.method == "POST":
+        lock = Lock()
+        lock.acquire()
         user = request.form['user']
         passw = request.form['passw']
         params = {
@@ -158,7 +162,9 @@ def login():
                 session["user"] = user
             elif ans == 2:
                 session["admin"] = user
+            lock.release()
             return redirect(url_for('index'))
+        lock.release()
         return redirect(url_for('error', flag = 5, ans = -1))
     return render_template('login.html')
 
@@ -228,6 +234,8 @@ def disc(total):
 @app.route('/payProcess', methods = ['POST'])
 def payProcess():
     if "user" in session:
+        lock = Lock()
+        lock.acquire()
         user = session['user']
         if request.method == 'POST':
             name = request.form['name']
@@ -244,6 +252,7 @@ def payProcess():
                 'ccv': ccv
             }
             ans = requests.get('http://127.0.0.1:8000/api/payments/pay', json = params).json()
+            lock.release()
             if ans <= 2: return redirect(url_for('error', flag = ans, ans = 10))
             elif ans == 3: return redirect(url_for('index'))
             elif ans > 3: return redirect(url_for('disc', total = ans))

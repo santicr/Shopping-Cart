@@ -135,6 +135,7 @@ def process_test_1(data):
 def process_test_2(data):
     driver = Chrome()
     driver.get('http://127.0.0.1:5000/')
+    driver.maximize_window()
 
     # Login process
     login = driver.find_element(by=By.CSS_SELECTOR, value="body > nav > div > a:nth-child(2) > button")
@@ -213,6 +214,7 @@ def process_test_2(data):
 def process_test_3(data):
     driver = Chrome()
     driver.get('http://127.0.0.1:5000/')
+    driver.maximize_window()
 
     # Login process
     login = driver.find_element(by=By.CSS_SELECTOR, value="body > nav > div > a:nth-child(2) > button")
@@ -291,6 +293,7 @@ def process_test_3(data):
 def process_test_4(data):
     driver = Chrome()
     driver.get('http://127.0.0.1:5000/')
+    driver.maximize_window()
 
     # Login process
     login = driver.find_element(by=By.CSS_SELECTOR, value="body > nav > div > a:nth-child(2) > button")
@@ -362,7 +365,7 @@ def process_test_4(data):
 class Test1(unittest.TestCase):
     def setUp(self) -> None:
         self.id = 4
-        self.hour = datetime.now()
+        self.hour = str(int(datetime.now().hour) - 12)
         self.data = fetch_credit_card(self.id)
         self.credit_card = self.data[4]
         self.total = process_test_1(self.data)
@@ -379,14 +382,14 @@ class Test1(unittest.TestCase):
         self.assertEqual(verify_card(self.data), 1)
         self.assertEqual(self.hour, self.credit_card[-1])
         self.assertLessEqual(int(self.credit_card[0]) + int(self.credit_card[1]), 4)
-        self.assertLess(self.total, self.new_total)
+        self.assertLess(self.new_total, self.total)
 
 class Test2(unittest.TestCase):
     def setUp(self) -> None:
         self.id = 3
         self.data = fetch_credit_card(self.id)
         self.credit_card = self.data[4]
-        self.hour = datetime.now().hour
+        self.hour = str(int(datetime.now().hour) - 12)
 
         self.assertEqual(verify_card(self.data), 1)
         self.assertNotEqual(self.hour, self.credit_card[-1])
@@ -406,7 +409,7 @@ class Test3(unittest.TestCase):
         self.id = 2
         self.data = fetch_credit_card(self.id)
         self.credit_card = self.data[4]
-        self.hour = datetime.now().hour
+        self.hour = str(int(datetime.now().hour) - 12)
 
         self.assertEqual(verify_card(self.data), 1)
         self.assertEqual(self.hour, self.credit_card[-1])
@@ -424,7 +427,7 @@ class Test3(unittest.TestCase):
 
 class Test4(unittest.TestCase):
     def setUp(self) -> None:
-        self.hour = datetime.now().hour
+        self.hour = str(int(datetime.now().hour) - 12)
         self.data = fetch_credit_card(1)
         self.credit_card = self.data[4]
 

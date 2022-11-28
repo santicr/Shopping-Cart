@@ -41,6 +41,8 @@ def test_process(name, quantity, price, description, err):
     pass_input.click()
     pass_input.send_keys("admin")
 
+    time.sleep(1)
+
     login_but = driver.find_element(by=By.CSS_SELECTOR, value = 'body > div > div > div > form > button')
     login_but.click()
 
@@ -66,11 +68,15 @@ def test_process(name, quantity, price, description, err):
 
     driver.find_element(by=By.CSS_SELECTOR, value = 'body > div > div > div > form > input[type=file]').send_keys('/Users/santicr/Desktop/Accesorios/aretes.jpeg')
     add_but2 = driver.find_element(by=By.CSS_SELECTOR, value = 'body > div > div > div > form > button')
+    
+    time.sleep(1)
+    
     add_but2.click()
 
     # Get error and get back to index process
     if err:
         text = driver.find_element(by=By.CSS_SELECTOR, value = 'body > p').text
+        time.sleep(1)
         driver.find_element(by=By.CSS_SELECTOR, value = 'body > a').click()
     driver.quit()
     
